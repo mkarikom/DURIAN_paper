@@ -37,3 +37,17 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# extras
+workspace.code-workspace
+*.csv
+*.log
+*.gz
+*.gzip
+*.zip
+*.tsv
+*.pdf
+*.RDS
+*.RData
+._.DS_Store
+.DS_Store
