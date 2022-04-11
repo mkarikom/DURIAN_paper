@@ -49,7 +49,5 @@ workspace.code-workspace
 *.pdf
 *.RDS
 *.RData
-._.DS_Store
-.DS_Store
-.DS_Store.log
-._.DS_Store.log
+._.DS_Store*
+.DS_Store*

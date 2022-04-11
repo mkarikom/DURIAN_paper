@@ -16,7 +16,7 @@ rm /dfs5/bio/mkarikom/temp/DURIAN/slurm/slurm_housekeeping/nodes_ready_tmp10g.tx
 
 export SLURMPARTITION=standard
 export SLURMTIMELIMIT=0-01:00:00
-export PROJECTDIR=/dfs5/bio/mkarikom/temp/DURIAN
+export PROJECTDIR=/dfs6/pub/mkarikom/code/DURIAN_paper_clean
 export BASEDIR=$PROJECTDIR/slurm
 export NVME_NODEFILE=$BASEDIR/slurm_housekeeping/nodes_ready_tmp10g.txt
 export NVME_NODEDIR=$BASEDIR/slurm_housekeeping/nodes_ready_tmp10g
