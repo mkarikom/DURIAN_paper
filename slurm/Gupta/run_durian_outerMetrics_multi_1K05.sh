@@ -98,45 +98,6 @@ export nsleepdatapath=1 # how long to sleep after creating pb data path
 ######################################################################################
 # ursm params
 ######################################################################################
-# export number_of_cell_types=11 # for gupta is 11, for baron is 14
-# baron scdata DM is 2762 x 936
-# baron scdata H is 2762 x 4710
-# gupta scdata is 2971 x 12905
-# he scdata NL is 6005 x 5001
-# he scdata LS is 6005 x 5001
-
-# n = 2000
-# alpha = 0.05
-# set.seed(1)
-# scdata = "slurm/He/durian_data/HeNL.sense0.1.cpm.sub_C.csv"
-# check = as.data.frame(t(read.csv(scdata,row.names=1))) %>% sample_n(n)
-# ngenes = length(which(colSums(check > 0) >= alpha * nrow(check)))
-# print(paste0("he NL number of genes = ", ngenes))
-
-# n = 2000
-# alpha = 0.05
-# set.seed(1)
-# scdata = "slurm/He/durian_data/HeLS.sense0.1.cpm.sub_C.csv"
-# check = as.data.frame(t(read.csv(scdata,row.names=1))) %>% sample_n(n)
-# ngenes = length(which(colSums(check > 0) >= alpha * nrow(check)))
-# print(paste0("he LS number of genes = ", ngenes))
-
-# n = 2000
-# alpha = 0.05
-# set.seed(1)
-# scdata = "slurm/Gupta/durian_data/GuptaE13SC.VST_C.csv"
-# check = as.data.frame(t(read.csv(scdata,row.names=1))) %>% sample_n(n)
-# ngenes = length(which(colSums(check > 0) >= alpha * nrow(check)))
-# print(paste0("gupta number of genes = ", ngenes))
-
-# n = 2000
-# alpha = 0.05
-# set.seed(1)
-# scdata = "slurm/Baron/durian_data/BaronSC.H.cpm_C.csv"
-# check = as.data.frame(t(read.csv(scdata,row.names=1))) %>% sample_n(n)
-# ngenes = length(which(colSums(check > 0) >= alpha * nrow(check)))
-# print(paste0("baron H number of genes = ", ngenes))
-
 export number_of_cell_types=14 # for gupta is 11, for baron is 14, for he is 8
 export burn_in_length=10
 export gibbs_sample_number=10
