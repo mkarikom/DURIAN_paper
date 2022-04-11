@@ -40,7 +40,7 @@ export JULIA_GR_PROVIDER=GR
 export R_HOME=/opt/apps/R/4.0.4/lib64/R # make sure JuliaCall/RCall can access R
 export R_LIBS_USER=/data/homezvol2/mkarikom/R/x86_64-pc-linux-gnu-library/4.0 # norm() error
 export LD_LIBRARY_PATH=/opt/apps/anaconda/2020.07/lib:$LD_LIBRARY_PATH # prevent libpng16.so error when loading julia
-export PYTHONPATH=/dfs5/bio/mkarikom/Python2.7_Pip_Packages
+export PYTHONPATH=/dfs6/pub/mkarikom/Python2.7_Pip_Packages
 
 export DURIANLIB=$BASEDIR/scrabble_helper_functions/library_scrabble_clusterMetrics_clValid.R
 export ETCLIB=$BASEDIR/scrabble_helper_functions/library_other_methods.R

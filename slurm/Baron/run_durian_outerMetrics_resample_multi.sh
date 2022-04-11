@@ -39,7 +39,7 @@ export JULIA_GR_PROVIDER=GR
 
 # export JULIA_DEPOT_PATH=/dfs5/bio/mkarikom/Julia6.0_Depot:$JULIA_DEPOT_PATH
 # export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/dfs6/pub/mkarikom/binaries/anaconda3/lib/ # needed for pypolyagamma
-export PYTHONPATH=/dfs5/bio/mkarikom/Python2.7_Pip_Packages
+export PYTHONPATH=/dfs6/pub/mkarikom/Python2.7_Pip_Packages
 
 module purge
 module load zlib
@@ -190,8 +190,8 @@ for SIMREP in $(seq 1 $MAXREP); do
                                         --mem-per-cpu=$MEMP \
                                         --exclude=$NODESEXCLUDE \
                                         --job-name=$SBATCHJOBNAME \
-                                        --error=$SBATCHERRDIR/err_%x_%A_%a.txt \
-                                        --out=$SBATCHOUTDIR/out_%x_%A_%a.txt \
+                                        --error=$SBATCHERRDIR/err_%x_%A_%a.log \
+                                        --out=$SBATCHOUTDIR/out_%x_%A_%a.log \
                                         $SBATCHSUB | cut -f 4 -d' ')
                                         NONURSMDEPENDS+=":${sbatchid}"
                                         MULTISETDEPENDS+=":${sbatchid}"
@@ -234,8 +234,8 @@ for SIMREP in $(seq 1 $MAXREP); do
                                 --mem-per-cpu=$MEMP \
                                 --exclude=$NODESEXCLUDE \
                                 --job-name=$SBATCHJOBNAME \
-                                --error=$SBATCHERRDIR/err_%x_%A_%a.txt \
-                                --out=$SBATCHOUTDIR/out_%x_%A_%a.txt \
+                                --error=$SBATCHERRDIR/err_%x_%A_%a.log \
+                                --out=$SBATCHOUTDIR/out_%x_%A_%a.log \
                                 $SBATCHSUB | cut -f 4 -d' ')
                                 NONURSMDEPENDS+=":${sbatchid}"
                                 MULTISETDEPENDS+=":${sbatchid}"
@@ -280,8 +280,8 @@ for SIMREP in $(seq 1 $MAXREP); do
                                 --mem-per-cpu=$MEMP \
                                 --exclude=$NODESEXCLUDE \
                                 --job-name=$SBATCHJOBNAME \
-                                --error=$SBATCHERRDIR/err_%x_%A_%a.txt \
-                                --out=$SBATCHOUTDIR/out_%x_%A_%a.txt \
+                                --error=$SBATCHERRDIR/err_%x_%A_%a.log \
+                                --out=$SBATCHOUTDIR/out_%x_%A_%a.log \
                                 $SBATCHSUB | cut -f 4 -d' ')
                                 NONURSMDEPENDS+=":${sbatchid}"
                                 MULTISETDEPENDS+=":${sbatchid}"

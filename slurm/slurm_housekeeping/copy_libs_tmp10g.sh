@@ -61,8 +61,8 @@ for nodeprefix in "${nodeprefs[@]}"; do
         --time=$SLURMTIMELIMIT \
         --mem-per-cpu=$MEMPERCPU \
         --job-name=$SBATCHJOBNAME \
-        --error=$SBATCHERRDIR/err_%x_%A_%a.txt \
-        --out=$SBATCHOUTDIR/out_%x_%A_%a.txt \
+        --error=$SBATCHERRDIR/err_%x_%A_%a.log \
+        --out=$SBATCHOUTDIR/out_%x_%A_%a.log \
         $SBATCHSUB | cut -f 4 -d' ')
         echo sbatch id is $sbatchid
         if [ ${#sbatchid} -ge 2 ];
@@ -85,6 +85,6 @@ sbatch \
 --mem-per-cpu=$MEMPERCPU \
 --job-name=$SBATCHJOBNAME \
 --dependency=afterany$NODEJOBS \
---error=$SBATCHERRDIR/err_%x_%A_%a.txt \
---out=$SBATCHOUTDIR/out_%x_%A_%a.txt \
+--error=$SBATCHERRDIR/err_%x_%A_%a.log \
+--out=$SBATCHOUTDIR/out_%x_%A_%a.log \
 $SBATCHSUB

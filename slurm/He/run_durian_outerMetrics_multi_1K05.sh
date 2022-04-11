@@ -35,7 +35,7 @@ export JULIA_GR_PROVIDER=GR
 
 # export JULIA_DEPOT_PATH=/dfs5/bio/mkarikom/Julia6.0_Depot:$JULIA_DEPOT_PATH
 # export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/dfs6/pub/mkarikom/binaries/anaconda3/lib/ # needed for pypolyagamma
-export PYTHONPATH=/dfs5/bio/mkarikom/Python2.7_Pip_Packages
+export PYTHONPATH=/dfs6/pub/mkarikom/Python2.7_Pip_Packages
 
 module purge
 module load zlib
@@ -181,8 +181,8 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                                 --mem-per-cpu=$MEMP \
                                 --exclude=$NODESEXCLUDE \
                                 --job-name=$SBATCHJOBNAME \
-                                --error=$SBATCHERRDIR/err_%x_%A_%a.txt \
-                                --out=$SBATCHOUTDIR/out_%x_%A_%a.txt \
+                                --error=$SBATCHERRDIR/err_%x_%A_%a.log \
+                                --out=$SBATCHOUTDIR/out_%x_%A_%a.log \
                                 $SBATCHSUB | cut -f 4 -d' ')
                                 NONURSMDEPENDS+=":${sbatchid}"
                                 MULTISETDEPENDS+=":${sbatchid}"
@@ -226,58 +226,58 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                         --mem-per-cpu=$MEMP \
                         --exclude=$NODESEXCLUDE \
                         --job-name=$SBATCHJOBNAME \
-                        --error=$SBATCHERRDIR/err_%x_%A_%a.txt \
-                        --out=$SBATCHOUTDIR/out_%x_%A_%a.txt \
+                        --error=$SBATCHERRDIR/err_%x_%A_%a.log \
+                        --out=$SBATCHOUTDIR/out_%x_%A_%a.log \
                         $SBATCHSUB | cut -f 4 -d' ')
                         NONURSMDEPENDS+=":${sbatchid}"
                         MULTISETDEPENDS+=":${sbatchid}"
 
                         sleep $nsleepfit
 
-                        # ######################################################################################
-                        # # fit durian lda
-                        # ######################################################################################
+                        ######################################################################################
+                        # fit durian lda
+                        ######################################################################################
 
-                        # export IMPUTE_METHOD=DURIAN
-                        # export DECONVMETHOD=dsLDA
-                        # export SIMREP=42
+                        export IMPUTE_METHOD=DURIAN
+                        export DECONVMETHOD=dsLDA
+                        export SIMREP=42
 
-                        # SBATCHJOBNAME=${PREFIXTUPLE}_${IMPUTE_METHOD}_$suffix
-                        # SBATCHOUTDIR=${OUTBASEDIR}/output_logs/pseudo_fit_$IMPUTE_METHOD/out
-                        # SBATCHERRDIR=${OUTBASEDIR}/output_logs/pseudo_fit_$IMPUTE_METHOD/err
-                        # mkdir -p $SBATCHERRDIR
-                        # mkdir -p $SBATCHOUTDIR
+                        SBATCHJOBNAME=${PREFIXTUPLE}_${IMPUTE_METHOD}_$suffix
+                        SBATCHOUTDIR=${OUTBASEDIR}/output_logs/pseudo_fit_$IMPUTE_METHOD/out
+                        SBATCHERRDIR=${OUTBASEDIR}/output_logs/pseudo_fit_$IMPUTE_METHOD/err
+                        mkdir -p $SBATCHERRDIR
+                        mkdir -p $SBATCHOUTDIR
 
-                        # export LDARUNQC=FALSE
-                        # export LDASCALEBLK=lognorm #lognorm
-                        # export LDASCALESC=column #
-                        # export LDASCALEFACBLK=10000
-                        # export MINCELLSTOPICCORP=1
-                        # export MCNPARTITIONS=$NPBULK
-                        # export MCNCHAINS=2
-                        # export MCTHINNING=1
-                        # export MCBURNRATE=0.5
-                        # export NJULIACORES=$((NBULK+1)) # this should be leq the number of PBULKS 
+                        export LDARUNQC=FALSE
+                        export LDASCALEBLK=lognorm #lognorm
+                        export LDASCALESC=column #
+                        export LDASCALEFACBLK=10000
+                        export MINCELLSTOPICCORP=1
+                        export MCNPARTITIONS=$NPBULK
+                        export MCNCHAINS=2
+                        export MCTHINNING=1
+                        export MCBURNRATE=0.5
+                        export NJULIACORES=$((NBULK+1)) # this should be leq the number of PBULKS 
 
-                        # SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task.sub
-                        # export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods_clusterMetrics_outerStats_clValid.R
-                        # export nCoresAvail=$NCPUS # this is the number of workers we want
-                        # export JULIA_NUM_THREADS=$NCPUS
+                        SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task.sub
+                        export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods_clusterMetrics_outerStats_clValid.R
+                        export nCoresAvail=$NCPUS # this is the number of workers we want
+                        export JULIA_NUM_THREADS=$NCPUS
 
-                        # echo running durian dslda after $PSEUDODEPENDS
-                        # sbatchid=$(sbatch \
-                        # --account=$SLURMACCT \
-                        # --partition=$SLURMPARTITION \
-                        # --cpus-per-task=$NCPUS \
-                        # --time=$slurmtimelimit \
-                        # --mem-per-cpu=$MEMP \
-                        # --exclude=$NODESEXCLUDE \
-                        # --job-name=$SBATCHJOBNAME \
-                        # --error=$SBATCHERRDIR/err_%x_%A_%a.txt \
-                        # --out=$SBATCHOUTDIR/out_%x_%A_%a.txt \
-                        # $SBATCHSUB | cut -f 4 -d' ')
-                        # NONURSMDEPENDS+=":${sbatchid}"
-                        # MULTISETDEPENDS+=":${sbatchid}"
+                        echo running durian dslda after $PSEUDODEPENDS
+                        sbatchid=$(sbatch \
+                        --account=$SLURMACCT \
+                        --partition=$SLURMPARTITION \
+                        --cpus-per-task=$NCPUS \
+                        --time=$slurmtimelimit \
+                        --mem-per-cpu=$MEMP \
+                        --exclude=$NODESEXCLUDE \
+                        --job-name=$SBATCHJOBNAME \
+                        --error=$SBATCHERRDIR/err_%x_%A_%a.log \
+                        --out=$SBATCHOUTDIR/out_%x_%A_%a.log \
+                        $SBATCHSUB | cut -f 4 -d' ')
+                        NONURSMDEPENDS+=":${sbatchid}"
+                        MULTISETDEPENDS+=":${sbatchid}"
                 done
 
         done
