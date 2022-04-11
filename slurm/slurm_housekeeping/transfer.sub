@@ -1,0 +1,10 @@
+#!/bin/bash
+
+####################################################
+# select r libs user
+####################################################
+
+# assumes we already ran `tar -zcvf ~/rlibs/mylibs.tar.gz ~/R/x86_64-pc-linux-gnu-library/4.0`
+# check if caching is desired
+
+/dfs5/bio/mkarikom/temp/DURIAN/slurm/slurm_housekeeping/transfer.sh

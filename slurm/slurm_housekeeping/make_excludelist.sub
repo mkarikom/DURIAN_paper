@@ -1,0 +1,3 @@
+#!/bin/bash
+
+/dfs5/bio/mkarikom/temp/DURIAN/slurm/slurm_housekeeping/make_excludelist.sh

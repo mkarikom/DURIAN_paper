@@ -1,0 +1,8 @@
+[deps]
+DistributedTopicModels = "84443b02-f120-4e83-b3f9-d8b671af1397"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+Infiltrator = "5903a43b-9cc3-4c30-8d17-598619ec4e9b"
+RCall = "6f49c342-dc21-5d91-9882-a32aef131414"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"

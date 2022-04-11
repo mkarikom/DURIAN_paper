@@ -1,0 +1,12 @@
+#!/bin/bash
+
+export DATAPATH=$PBULKDIR/sim_$SLURM_ARRAY_TASK_ID
+
+export single_cell_expr_file=$DATAPATH/imputemodel_URSM/ursmsc.csv
+export single_cell_type_file=$DATAPATH/imputemodel_URSM/ursmcelltype.csv
+export bulk_expr_file=$DATAPATH/imputemodel_URSM/ursmbulk.csv
+
+export output_directory=$DATAPATH/imputemodel_URSM
+export ursmlog=$DATAPATH/imputemodel_URSM/run.log
+
+python $URSMSCRIPT
