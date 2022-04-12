@@ -74,6 +74,7 @@ export RUNOUTERSTATS=TRUE
 export RUNSTABILITY=FALSE
 export INITSCRABBLE=FALSE
 export SUMMARIZEDECONV=TRUE
+export USEIRLBA=FALSE # prevent instability for benchmarks, this will take longer
 
 export DECONVGENETHRESH=-0.001
 export SCRGENETHRESH=-0.001
@@ -84,7 +85,7 @@ DPARAMS=( "1,1e-6,1e-4" "1e-2,1e-5,1e-5" )
 export durianEps=1e-3
 
 TypeList=( "" )
-PREFIXTUPLES=( "GuptaE13SC.VST1K05;BiggsBulk.VST") # scdata is 2971 x 12905
+PREFIXTUPLES=( "GuptaE13SC.VST1K05;BiggsBulk.VST" ) # scdata is 2971 x 12905
 export CELLCHATDB="CellChatDB.mouse"
 
 nsleepsim=60 # amount of time to sleep after generating sc simulation (prevent pseudo from erroring upon creation)
