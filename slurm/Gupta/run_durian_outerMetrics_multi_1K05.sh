@@ -48,7 +48,7 @@ module load julia/1.6.0
 module load R/4.0.4
 module load python/2.7.17 # needed for ursm, pypolyagamma
 
-export DURIANLIB=$BASEDIR/scrabble_helper_functions/library_scrabble_clusterMetrics_clValid.R
+export DURIANLIB=$BASEDIR/scrabble_helper_functions/library_scrabble_new.R
 export ETCLIB=$BASEDIR/scrabble_helper_functions/library_other_methods.R
 export SIGNALINGLIB=$BASEDIR/scrabble_helper_functions/library_signaling.R
 export MULTISETLIB=$BASEDIR/scrabble_helper_functions/library_signaling_multiset.R
@@ -124,7 +124,7 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
 
                 SBATCHSUB=$BASEDIR/application_scripts/run_durian.sub
                 IMPUTE_METHODS=( DrImpute dropout )
-                export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods_clusterMetrics_outerStats_clValid.R
+                export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods.R
 
                 for IMPUTE_METHOD in "${IMPUTE_METHODS[@]}"; do
                         export SIMREP=42
@@ -211,7 +211,7 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
 
                         export NJULIACORES=$((NBULK+1)) # this should be leq the number of PBULKS 
                         SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task.sub
-                        export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods_clusterMetrics_outerStats_clValid.R
+                        export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods.R
                         export nCoresAvail=$NCPUS # this is the number of workers we want
                         export JULIA_NUM_THREADS=$NCPUS
 
@@ -257,7 +257,7 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                         export NJULIACORES=$((NBULK+1)) # this should be leq the number of PBULKS 
 
                         SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task.sub
-                        export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods_clusterMetrics_outerStats_clValid.R
+                        export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods.R
                         export nCoresAvail=$NCPUS # this is the number of workers we want
                         export JULIA_NUM_THREADS=$NCPUS
 
