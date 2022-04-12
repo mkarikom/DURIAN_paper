@@ -202,9 +202,9 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                         export DECONVMETHOD=MuSiC
                         export SIMREP=42
 
-                        SBATCHJOBNAME=${PREFIXTUPLE}_${IMPUTE_METHOD}.${DECONV_METHOD}_$suffix
-                        SBATCHOUTDIR=${OUTBASEDIR}/output_logs/pseudo_fit_$IMPUTE_METHOD.$DECONV_METHOD/out
-                        SBATCHERRDIR=${OUTBASEDIR}/output_logs/pseudo_fit_$IMPUTE_METHOD.$DECONV_METHOD/err
+                        SBATCHJOBNAME=${PREFIXTUPLE}_${IMPUTE_METHOD}.${DECONVMETHOD}_$suffix
+                        SBATCHOUTDIR=${OUTBASEDIR}/output_logs/pseudo_fit_$IMPUTE_METHOD.$DECONVMETHOD/out
+                        SBATCHERRDIR=${OUTBASEDIR}/output_logs/pseudo_fit_$IMPUTE_METHOD.$DECONVMETHOD/err
                         mkdir -p $SBATCHERRDIR
                         mkdir -p $SBATCHOUTDIR
 
@@ -238,9 +238,9 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                         export DECONVMETHOD=dsLDA
                         export SIMREP=42
 
-                        SBATCHJOBNAME=${PREFIXTUPLE}_${IMPUTE_METHOD}.${DECONV_METHOD}_$suffix
-                        SBATCHOUTDIR=${OUTBASEDIR}/output_logs/pseudo_fit_$IMPUTE_METHOD.$DECONV_METHOD/out
-                        SBATCHERRDIR=${OUTBASEDIR}/output_logs/pseudo_fit_$IMPUTE_METHOD.$DECONV_METHOD/err
+                        SBATCHJOBNAME=${PREFIXTUPLE}_${IMPUTE_METHOD}.${DECONVMETHOD}_$suffix
+                        SBATCHOUTDIR=${OUTBASEDIR}/output_logs/pseudo_fit_$IMPUTE_METHOD.$DECONVMETHOD/out
+                        SBATCHERRDIR=${OUTBASEDIR}/output_logs/pseudo_fit_$IMPUTE_METHOD.$DECONVMETHOD/err
                         mkdir -p $SBATCHERRDIR
                         mkdir -p $SBATCHOUTDIR
 
