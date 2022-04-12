@@ -319,16 +319,6 @@ if(imethod=="dropout"){
     dir.create(savepath,recursive=TRUE)
     set.seed(simrep)
 
-    # cstats = run_clvalid(impdata=C)
-    # logdf0 <- data.frame(
-    #     iter = as.integer(c(NA)),
-    #     ldaMeanRhat = as.numeric(c(NA)),
-    #     scrabbleLoss = as.numeric(c(NA)),
-    #     converged=as.integer(c(1)),
-    #     status=c("converged"),
-    #     wallclock=as.numeric(c(0)))
-    # logdf0 = cbind(logdf0,t(cstats))
-
     impresult_list=run_durian(
         path = savepath,
         scrabble_parameters = c(DurianAlpha,DurianBeta,DurianGamma),
@@ -352,7 +342,7 @@ if(imethod=="dropout"){
         nIter_outer = DunIterOuter,
         nIter_inner = DunIterInner,
         nSDCIters = DunSDCIters,
-        summarizeDeconv = as.logical(Sys.getenv("SUMMARIZEDECONV")),
+        saveDeconvolutionLog = as.logical(Sys.getenv("SUMMARIZEDECONV")),
         DECONVGENETHRESH=deconvgenethresh,
         SCRGENETHRESH=scrgenethresh,
         LDASCALEFACBLK = as.numeric(Sys.getenv("LDASCALEFACBLK")),

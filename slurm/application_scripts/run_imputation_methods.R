@@ -329,7 +329,7 @@ if(imethod=="dropout"){
         nIter_outer = DunIterOuter,
         nIter_inner = DunIterInner,
         nSDCIters = DunSDCIters,
-        summarizeDeconv = as.logical(Sys.getenv("SUMMARIZEDECONV")),
+        saveDeconvolutionLog = as.logical(Sys.getenv("SUMMARIZEDECONV")),
         DECONVGENETHRESH=deconvgenethresh,
         SCRGENETHRESH=scrgenethresh,
         LDASCALEFACBLK = as.numeric(Sys.getenv("LDASCALEFACBLK")),
