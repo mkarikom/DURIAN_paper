@@ -54,8 +54,8 @@ export SIGNALINGLIB=$BASEDIR/scrabble_helper_functions/library_signaling.R
 export MULTISETLIB=$BASEDIR/scrabble_helper_functions/library_signaling_multiset.R
 
 # save all the enviroment stuff to the project dir
-pip freeze > $PROJECTDIR/requirements.txt
-Rscript -e "sessionInfo()" >> $PROJECTDIR/session_info.txt
+pip freeze > $PROJECTDIR/requirements.req
+Rscript -e "sessionInfo()" >> $PROJECTDIR/session_info.req
 
 ######################################################################################
 # durian/scrabble params
@@ -142,8 +142,8 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                         --time=$slurmtimelimit \
                         --mem-per-cpu=$MEMP \
                         --job-name=$SBATCHJOBNAME \
-                        --error=$SBATCHERRDIR/err_%x_%A.txt \
-                        --out=$SBATCHOUTDIR/out_%x_%A.txt \
+                        --error=$SBATCHERRDIR/err_%x_%A.log \
+                        --out=$SBATCHOUTDIR/out_%x_%A.log \
                         $SBATCHSUB | cut -f 4 -d' ')
                         NONURSMDEPENDS+=":${sbatchid}"
                         MULTISETDEPENDS+=":${sbatchid}"
@@ -295,7 +295,7 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
         --mem-per-cpu=$MEMP \
         --job-name=$SBATCHJOBNAME \
         --dependency=afterany$MULTISETDEPENDS \
-        --error=$SBATCHERRDIR/err_%x_%A.txt \
-        --out=$SBATCHOUTDIR/out_%x_%A.txt \
+        --error=$SBATCHERRDIR/err_%x_%A.log \
+        --out=$SBATCHOUTDIR/out_%x_%A.log \
         $SBATCHSUB | cut -f 4 -d' ')
 done

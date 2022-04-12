@@ -19,7 +19,7 @@ savepath = Sys.getenv("SAVEPATH")
 dir.create(savepath,recursive=TRUE)
 
 ### external code
-metricslib="slurm/application_scripts/test/library_cluster_metrics.R"
+metricslib="slurm/scrabble_helper_functions/test/library_cluster_metrics.R"
 source(metricslib)
 
 metrics_df = run_clusterMetrics_final_nested_real(
