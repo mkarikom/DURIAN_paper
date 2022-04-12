@@ -23,7 +23,6 @@ export NCPUS=10
 
 MEMP=16000M # memory in mb, try increasing if nodes are not avail
 export SOURCEPATH=$BASEDIR/${dsname}/durian_data
-export NVME_NODESEXCLUDE=$BASEDIR/slurm_housekeeping/nodes_exclude_avx_${SLURMPARTITION}.txt
 
 export JULIA_PROJECT=${PROJECTDIR} # make sure all workers can access the project enviroment
 export JULIA_HOME=/opt/apps/julia/1.6.0/bin # make sure all workers can access the project enviroment
@@ -142,7 +141,6 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                         --cpus-per-task=$NCPUS \
                         --time=$slurmtimelimit \
                         --mem-per-cpu=$MEMP \
-                        --exclude=$NVME_NODESEXCLUDE \
                         --job-name=$SBATCHJOBNAME \
                         --error=$SBATCHERRDIR/err_%x_%A.txt \
                         --out=$SBATCHOUTDIR/out_%x_%A.txt \
@@ -179,7 +177,6 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                                 --cpus-per-task=$NCPUS \
                                 --time=$slurmtimelimit \
                                 --mem-per-cpu=$MEMP \
-                                --exclude=$NODESEXCLUDE \
                                 --job-name=$SBATCHJOBNAME \
                                 --error=$SBATCHERRDIR/err_%x_%A_%a.log \
                                 --out=$SBATCHOUTDIR/out_%x_%A_%a.log \
@@ -224,7 +221,6 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                         --cpus-per-task=$NCPUS \
                         --time=$slurmtimelimit \
                         --mem-per-cpu=$MEMP \
-                        --exclude=$NODESEXCLUDE \
                         --job-name=$SBATCHJOBNAME \
                         --error=$SBATCHERRDIR/err_%x_%A_%a.log \
                         --out=$SBATCHOUTDIR/out_%x_%A_%a.log \
@@ -271,7 +267,6 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                         --cpus-per-task=$NCPUS \
                         --time=$slurmtimelimit \
                         --mem-per-cpu=$MEMP \
-                        --exclude=$NODESEXCLUDE \
                         --job-name=$SBATCHJOBNAME \
                         --error=$SBATCHERRDIR/err_%x_%A_%a.log \
                         --out=$SBATCHOUTDIR/out_%x_%A_%a.log \
@@ -298,7 +293,6 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
         --cpus-per-task=$NCPUS \
         --time=$slurmtimelimit \
         --mem-per-cpu=$MEMP \
-        --exclude=$NVME_NODESEXCLUDE \
         --job-name=$SBATCHJOBNAME \
         --dependency=afterany$MULTISETDEPENDS \
         --error=$SBATCHERRDIR/err_%x_%A.txt \
