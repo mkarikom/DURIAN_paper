@@ -17,7 +17,7 @@ rm -fr /dfs5/bio/mkarikom/temp/DURIAN/slurm/slurm_housekeeping/nodes_ready_avx
 rm /dfs5/bio/mkarikom/temp/DURIAN/slurm/slurm_housekeeping/nodes_ready_avx.txt
 # rm /dfs5/bio/mkarikom/temp/DURIAN/slurm/slurm_housekeeping/nodes_exclude.txt
 
-export SLURMPARTITION=free
+export SLURMPARTITION=standard
 export SLURMTIMELIMIT=0-00:10:00
 export PROJECTDIR=/dfs6/pub/mkarikom/code/DURIAN_paper_clean
 export BASEDIR=$PROJECTDIR/slurm
