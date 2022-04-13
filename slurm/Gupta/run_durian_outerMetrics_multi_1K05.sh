@@ -18,7 +18,7 @@ export slurmtimelimit=3-00:00:00
 export PROJECTDIR=/dfs6/pub/mkarikom/code/DURIAN_paper_clean
 export BASEDIR=$PROJECTDIR/slurm
 export OUTPUTMASTER=$BASEDIR/${dsname}/output.clusterMetrics.$SLURMPARTITION.$suffix
-export NBULK=2
+export NBULK=5
 export NCPUS=10
 
 MEMP=16000M # memory in mb, try increasing if nodes are not avail
@@ -249,7 +249,7 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                         export LDASCALESC=column #
                         export LDASCALEFACBLK=10000
                         export MINCELLSTOPICCORP=1
-                        export MCNPARTITIONS=$NPBULK
+                        export MCNPARTITIONS=$NBULK
                         export MCNCHAINS=2
                         export MCTHINNING=1
                         export MCBURNRATE=0.5
