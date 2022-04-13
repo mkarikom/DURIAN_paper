@@ -127,13 +127,6 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                 export SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task.sub
                 export JOBSCRIPT=$BASEDIR/durian_pseudobulk/realdata_scripts/make_pseudo_donordrop.R
 
-                # save the script state
-                SUMMARYSCRIPT=${PBULKBASEDIR},output_scriptState
-                mkdir -p ${SUMMARYSCRIPT}
-                cp $ETCLIB ${SUMMARYSCRIPT}/
-                cp $DURIANLIB ${SUMMARYSCRIPT}/
-                cp $BASEDIR/durian_pseudobulk/realdata_scripts/* ${SUMMARYSCRIPT}/
-
                 SBATCHJOBNAME=gen_pseudo_$suffix
                 SBATCHOUTDIR=${PBULKBASEDIR},output_logs/pseudo_gen/out
                 SBATCHERRDIR=${PBULKBASEDIR},output_logs/pseudo_gen/err
