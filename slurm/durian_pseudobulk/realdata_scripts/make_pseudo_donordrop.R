@@ -10,7 +10,7 @@ library(purrr)
 # arguments
 ################################################################
 
-kscdatadir = Sys.getenv("SCDATADIR")
+scdatadir = Sys.getenv("SCDATADIR")
 scprefix = Sys.getenv("SCPREFIX")
 datapath = Sys.getenv("DATAPATH")
 pseudocount = as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
