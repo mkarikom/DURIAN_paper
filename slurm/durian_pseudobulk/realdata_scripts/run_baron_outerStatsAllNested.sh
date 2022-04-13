@@ -11,12 +11,15 @@ suffix=BaronOuterStatsAllNested
 
 export EMDIAG=FALSE
 export NPBULK=3 # the max number of pseudobulk samples within a sim
+# export NSIM=50
 export NSIM=5
 export PBTRAINRATE=0.5
-export SLURMPARTITION=free
+# export SLURMPARTITION=standard
+export SLURMPARTITION=debug
 export SLURMACCT=qnie_lab
 MEMPERCPU=10000
-export slurmtimelimit=0-02:30:00
+# export slurmtimelimit=0-02:30:00
+export slurmtimelimit=0-00:30:00
 export PROJECTDIR=/dfs6/pub/mkarikom/code/DURIAN_paper_clean
 export BASEDIR=$PROJECTDIR/slurm
 export NCPUS=$((NPBULK+1))
