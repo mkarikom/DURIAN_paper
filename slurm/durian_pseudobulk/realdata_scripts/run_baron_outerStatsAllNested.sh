@@ -11,9 +11,9 @@ suffix=BaronOuterStatsAllNested
 
 export EMDIAG=FALSE
 export NPBULK=3 # the max number of pseudobulk samples within a sim
-export NSIM=50
+export NSIM=5
 export PBTRAINRATE=0.5
-export SLURMPARTITION=highmem
+export SLURMPARTITION=free
 export SLURMACCT=qnie_lab
 MEMPERCPU=10000
 export slurmtimelimit=0-02:30:00
