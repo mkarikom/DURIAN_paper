@@ -19,7 +19,6 @@ prefix = strsplit(Sys.getenv("PREFIXTUPLE"),",")[[1]]
 imethod = Sys.getenv("IMPUTE_METHOD")
 
 ### external code
-source(Sys.getenv("DURIANLIB"))
 source(Sys.getenv("ETCLIB"))
 source(Sys.getenv("SIGNALINGLIB"))
 

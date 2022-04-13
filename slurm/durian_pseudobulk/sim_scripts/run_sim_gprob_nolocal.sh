@@ -42,7 +42,6 @@ export R_LIBS_USER=/data/homezvol2/mkarikom/R/x86_64-pc-linux-gnu-library/4.0 # 
 export LD_LIBRARY_PATH=/opt/apps/anaconda/2020.07/lib:$LD_LIBRARY_PATH # prevent libpng16.so error when loading julia
 export PYTHONPATH=/dfs6/pub/mkarikom/Python2.7_Pip_Packages
 
-export DURIANLIB=$BASEDIR/scrabble_helper_functions/library_scrabble_clusterMetrics_clValid.R
 export ETCLIB=$BASEDIR/scrabble_helper_functions/library_other_methods.R
 
 module purge
@@ -132,13 +131,6 @@ for dropMids in "${DROPOUTMIDS[@]}"; do
         export PBULKDIR=${PBULKBASEDIR},output_fit
         export SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task.sub
         export JOBSCRIPT=$BASEDIR/durian_pseudobulk/sim_scripts/generate_splatter_k4_path_batchdrop.R
-
-        # save the script state
-        SUMMARYSCRIPT=${PBULKBASEDIR},output_scriptState
-        mkdir -p ${SUMMARYSCRIPT}
-        cp $ETCLIB ${SUMMARYSCRIPT}/
-        cp $DURIANLIB ${SUMMARYSCRIPT}/
-        cp $BASEDIR/durian_pseudobulk/sim_scripts/* ${SUMMARYSCRIPT}/
 
         SBATCHJOBNAME=gen_splatter_$suffix
         SBATCHOUTDIR=${PBULKBASEDIR},output_logs/pseudo_gen/out

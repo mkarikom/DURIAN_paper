@@ -6,7 +6,6 @@ library(doParallel)
 print("preparing ursm files")
 
 ### arguments
-durianlib = Sys.getenv("DURIANLIB")
 datapath = Sys.getenv("DATAPATH")
 etclib = Sys.getenv("ETCLIB")
 output_directory = file.path(Sys.getenv("DATAPATH"),"imputemodel_URSM")
@@ -22,7 +21,6 @@ julia_cores = as.integer(Sys.getenv("NJULIACORES"))
 impute_methodlist = strsplit(Sys.getenv("IMPUTE_METHODLIST"),",")[[1]]
 
 ### external code
-source(durianlib)
 source(etclib)
 
 fn_T = file.path(datapath,"T.csv")

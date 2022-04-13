@@ -68,7 +68,6 @@ ScrabbleGamma=as.numeric(Sys.getenv("ScrabbleGamma"))
 simrep=as.integer(Sys.getenv("SIMREP"))
         
 ### external code
-source(Sys.getenv("DURIANLIB"))
 source(Sys.getenv("ETCLIB"))
 source(Sys.getenv("SIGNALINGLIB"))
 source(Sys.getenv("MULTISETLIB"))

@@ -53,7 +53,6 @@ module load julia/1.6.0
 module load R/4.0.4
 module load python/2.7.17 # needed for ursm, pypolyagamma
 
-export DURIANLIB=$BASEDIR/scrabble_helper_functions/library_scrabble_clusterMetrics_clValid.R
 export ETCLIB=$BASEDIR/scrabble_helper_functions/library_other_methods.R
 export SIGNALINGLIB=$BASEDIR/scrabble_helper_functions/library_signaling.R
 export MULTISETLIB=$BASEDIR/scrabble_helper_functions/library_signaling_multiset.R

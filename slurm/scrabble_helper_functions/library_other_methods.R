@@ -23,10 +23,7 @@ run_null <- function(
     result_sub = scdata
 
     impute_metrics = getmetrics(result_sub,true_sub)
-
     dropout_rate = getdroprate(result_sub,true_sub)
-    sparsity_true = getsparsity(true_sub)
-    sparsity_obs = getsparsity(result_sub)
 
     impute_rmse = impute_metrics[["rmse"]]
     cor_gene = impute_metrics[["row"]]

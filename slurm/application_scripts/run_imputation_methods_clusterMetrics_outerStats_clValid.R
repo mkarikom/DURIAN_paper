@@ -66,7 +66,6 @@ ScrabbleGamma=as.numeric(Sys.getenv("ScrabbleGamma"))
 simrep=as.integer(Sys.getenv("SIMREP"))
         
 ### external code
-source(Sys.getenv("DURIANLIB"))
 source(Sys.getenv("ETCLIB"))
 source("slurm/scrabble_helper_functions/library_cluster_metrics.R")
 source("slurm/scrabble_helper_functions/library_extra_plots.R")
