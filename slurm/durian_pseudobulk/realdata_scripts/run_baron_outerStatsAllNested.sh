@@ -140,7 +140,6 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                 echo sched pseudo
                 sbatchid=$(sbatch \
                 --account=$SLURMACCT \
-                --wait \
                 --array=1-$NSIM \
                 --partition=$SLURMPARTITION \
                 --cpus-per-task=$NCPUS \
@@ -177,7 +176,6 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                         # collect the job ids `sbatchid` in an array
                         sbatchid=$(sbatch \
                         --account=$SLURMACCT \
-                        --wait \
                         --array=1-$NSIM \
                         --partition=$SLURMPARTITION \
                         --cpus-per-task=$NCPUSLOW \
@@ -218,7 +216,6 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                                 # collect the job ids `sbatchid` in an array
                                 sbatchid=$(sbatch \
                                 --account=$SLURMACCT \
-                                --wait \
                                 --array=1-$NSIM \
                                 --partition=$SLURMPARTITION \
                                 --cpus-per-task=$NCPUS \
@@ -266,7 +263,6 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                         echo running durian music after $PSEUDODEPENDS
                         sbatchid=$(sbatch \
                         --account=$SLURMACCT \
-                        --wait \
                         --array=1-$NSIM \
                         --partition=$SLURMPARTITION \
                         --cpus-per-task=$NCPUS \
@@ -315,7 +311,6 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                         echo running durian dslda after $PSEUDODEPENDS
                         sbatchid=$(sbatch \
                         --account=$SLURMACCT \
-                        --wait \
                         --array=1-$NSIM \
                         --partition=$SLURMPARTITION \
                         --cpus-per-task=$NCPUS \
@@ -535,7 +530,6 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
 
         sbatchid=$(sbatch \
         --account=$SLURMACCT \
-        --wait \
         --partition=$SLURMPARTITION \
         --cpus-per-task=$NCPUSLOW \
         --time=$slurmtimelimit \
