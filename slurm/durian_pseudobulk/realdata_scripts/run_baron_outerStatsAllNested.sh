@@ -3,7 +3,7 @@
 ######################################################################################
 # set project environment for R and julia
 ######################################################################################
-nsleepsim=30 # amount of time to sleep after generating sc simulation (prevent pseudo from erroring upon creation)
+nsleepsim=120 # amount of time to sleep after generating sc simulation (prevent pseudo from erroring upon creation)
 nsleepfit=5 # amount of time to sleep in between steps that seem to miss key environment vars
 nsleeploop=5 # how long to sleep between loop iterations
 export nsleepdatapath=1 # how long to sleep after creating pb data path
