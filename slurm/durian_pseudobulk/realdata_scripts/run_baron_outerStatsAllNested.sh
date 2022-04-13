@@ -144,6 +144,7 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                 --job-name=$SBATCHJOBNAME \
                 --error=$SBATCHERRDIR/err_%x_%A_%a.log \
                 --out=$SBATCHOUTDIR/out_%x_%A_%a.log \
+                --wait \
                 $SBATCHSUB | cut -f 4 -d' ')
                 PSEUDODEPENDS+=":${sbatchid}"
 
