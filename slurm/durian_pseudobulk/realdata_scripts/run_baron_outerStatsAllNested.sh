@@ -17,8 +17,11 @@ export SLURMPARTITION=highmem
 export SLURMACCT=qnie_lab
 MEMPERCPU=10000
 export slurmtimelimit=0-02:30:00
-export PROJECTDIR=/dfs5/bio/mkarikom/code/DURIAN
+export PROJECTDIR=/dfs6/pub/mkarikom/code/DURIAN_paper_clean
 export BASEDIR=$PROJECTDIR/slurm
+export NCPUS=$((NPBULK+1))
+export NCPUSLOW=2
+
 export RUNMASTER=$BASEDIR/durian_pseudobulk_$suffix
 export URSMSCRIPT=$PROJECTDIR/URSM/scUnif_LinuxEnv.py
 
@@ -27,23 +30,23 @@ export JULIA_HOME=/opt/apps/julia/1.6.0/bin # make sure all workers can access t
 export JULIA_GR_PROVIDER=GR
 export R_HOME=/opt/apps/R/4.0.4/lib64/R # make sure JuliaCall/RCall can access R
 export R_LIBS_USER=/data/homezvol2/mkarikom/R/x86_64-pc-linux-gnu-library/4.0 # norm() error
-export LD_LIBRARY_PATH=/opt/apps/anaconda/2020.07/lib:$LD_LIBRARY_PATH # prevent libpng16.so error when loading julia
 export PYTHONPATH=/dfs6/pub/mkarikom/Python2.7_Pip_Packages
-
-export DURIANLIB=$BASEDIR/scrabble_helper_functions/library_scrabble_clusterMetrics_clValid.R
-export ETCLIB=$BASEDIR/scrabble_helper_functions/library_other_methods.R
 
 module purge
 module load zlib
-# module load eigen
-# module load hdf5
-# module load gcc
-# module load lapack
-# module load OpenBLAS
-# module load mkl
+module load eigen
+module load hdf5
+module load gcc
+module load lapack
+module load OpenBLAS
+module load mkl
 module load julia/1.6.0
 module load R/4.0.4
 module load python/2.7.17 # needed for ursm, pypolyagamma
+
+export ETCLIB=$BASEDIR/scrabble_helper_functions/library_other_methods.R
+export SIGNALINGLIB=$BASEDIR/scrabble_helper_functions/library_signaling.R
+export MULTISETLIB=$BASEDIR/scrabble_helper_functions/library_signaling_multiset.R
 
 ######################################################################################
 # ursm params
@@ -92,22 +95,7 @@ export RUNSTABILITY=FALSE
 SCPARAMS=( "1,1e-6,1e-4" "1e-2,1e-5,1e-5" )
 DPARAMS=( "1,1e-6,1e-4" "1e-2,1e-5,1e-5" )
 
-export DECONVGENETHRESH=0.005
-LAMBDAS=( 1e-5 5e-6 1e-6 )
-export NSIM=50
-export SLURMPARTITION=standard
-export SLURMACCT=qnie_lab
-MEMPERCPU=6000
-export NCPUS=5
-export NCPUSLOW=2
 
-# export NSIM=10
-# LAMBDAS=( 5e-7 )
-# DPARAMS=( "1e-2,1e-7,1e-5" )
-# IMPUTE_METHODS=( DrImpute dropout SCRABBLE mtSCRABBLE )
-# export MCNITER=2000
-# durianEmlimit=5 # the number of em iterations for durian and ursm
-# ursmEmlimit=2 # the number of em iterations for durian and ursm
 #################################################################
 
 declare -a ALLDEPENDS=''
@@ -173,7 +161,7 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
 
                 IMPUTE_METHODS=( DrImpute dropout )
                 SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task.sub
-                export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods_clusterMetrics_outerStats_clValid.R
+                export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods.R
                 export nCoresAvail=$NCPUS # this is the number of workers we want
                 export JULIA_NUM_THREADS=$NCPUS
 
@@ -271,7 +259,7 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
 
                         export NJULIACORES=$((NPBULK+1)) # this should be leq the number of PBULKS 
                         SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task.sub
-                        export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods_clusterMetrics_outerStats_clValid.R
+                        export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods.R
                         export nCoresAvail=$NCPUS # this is the number of workers we want
                         export JULIA_NUM_THREADS=$NCPUS
 
@@ -320,7 +308,7 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                         export NJULIACORES=$((NPBULK+1)) # this should be leq the number of PBULKS 
 
                         SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task.sub
-                        export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods_clusterMetrics_outerStats_clValid.R
+                        export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods.R
                         export nCoresAvail=$NCPUS # this is the number of workers we want
                         export JULIA_NUM_THREADS=$NCPUS
 
