@@ -80,7 +80,6 @@ export durianEps=1e-3
 
 TypeList=( "" )
 PREFIXTUPLES=( "GuptaE13SC.VST1K05;BiggsBulk.VST" ) # scdata is 2971 x 12905
-export CELLCHATDB="CellChatDB.mouse"
 
 nsleepsim=60 # amount of time to sleep after generating sc simulation (prevent pseudo from erroring upon creation)
 nsleepfit=2 # amount of time to sleep in between steps that seem to miss key environment vars
@@ -271,26 +270,4 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                 done
 
         done
-
-        SBATCHJOBNAME=clust
-        SBATCHOUTDIR=${OUTPUTMASTER}/output_logs/multisetClust/out
-        SBATCHERRDIR=${OUTPUTMASTER}/output_logs/multisetClust/err
-        mkdir -p $SBATCHERRDIR
-        mkdir -p $SBATCHOUTDIR
-
-        export JOBSCRIPT=$BASEDIR/application_scripts/run_clusterMetrics_real.R
-        export SAVEPATH=${OUTPUTMASTER}/clusterMetrics_multiset
-
-        echo running multiset clustermetrics
-        sbatchid=$(sbatch \
-        --account=$SLURMACCT \
-        --partition=$SLURMPARTITION \
-        --cpus-per-task=$NCPUS \
-        --time=$slurmtimelimit \
-        --mem-per-cpu=$MEMP \
-        --job-name=$SBATCHJOBNAME \
-        --dependency=afterany$MULTISETDEPENDS \
-        --error=$SBATCHERRDIR/err_%x_%A.log \
-        --out=$SBATCHOUTDIR/out_%x_%A.log \
-        $SBATCHSUB | cut -f 4 -d' ')
 done

@@ -8,7 +8,7 @@ nsleepsim=30 # amount of time to sleep after generating sc simulation (prevent p
 nsleepfit=5 # amount of time to sleep in between steps that seem to miss key environment vars
 nsleeploop=5 # how long to sleep between loop iterations
 dsname=Baron
-suffix=OuterMetrics1K05f
+suffix=OuterMetrics1K05
 prefix=$dsname
 SLURMACCT=qnie_lab
 
@@ -271,26 +271,4 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                 done
 
         done
-
-        SBATCHJOBNAME=clust
-        SBATCHOUTDIR=${OUTPUTMASTER}/output_logs/multisetClust/out
-        SBATCHERRDIR=${OUTPUTMASTER}/output_logs/multisetClust/err
-        mkdir -p $SBATCHERRDIR
-        mkdir -p $SBATCHOUTDIR
-
-        export JOBSCRIPT=$BASEDIR/application_scripts/run_clusterMetrics_real.R
-        export SAVEPATH=${OUTPUTMASTER}/clusterMetrics_multiset
-
-        echo running multiset clustermetrics
-        sbatchid=$(sbatch \
-        --account=$SLURMACCT \
-        --partition=$SLURMPARTITION \
-        --cpus-per-task=$NCPUS \
-        --time=$slurmtimelimit \
-        --mem-per-cpu=$MEMP \
-        --job-name=$SBATCHJOBNAME \
-        --dependency=afterany$MULTISETDEPENDS \
-        --error=$SBATCHERRDIR/err_%x_%A.log \
-        --out=$SBATCHOUTDIR/out_%x_%A.log \
-        $SBATCHSUB | cut -f 4 -d' ')
 done
