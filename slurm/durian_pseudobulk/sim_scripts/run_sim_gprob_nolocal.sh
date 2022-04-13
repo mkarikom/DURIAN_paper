@@ -11,7 +11,8 @@ suffix=OuterStats_clValidStabGprob
 
 export EMDIAG=FALSE
 export NPBULK=4 # the max number of pseudobulk samples within a sim
-export NSIM=50
+# export NSIM=50
+export NSIM=2
 export batchFacLoc=0.1
 export batchFacScale=0.2
 export deFacLoc=0.5
@@ -19,15 +20,17 @@ export deFacScale=0.5
 export gProbs=0.1-0.1-0.5-0.3
 export deProbs=0.3-0.3-0.3-0.3 # was 0.045
 export PBTRAINRATE=0.5
-export SLURMPARTITION=standard
+# export SLURMPARTITION=standard
+export SLURMPARTITION=free
 export SLURMACCT=qnie_lab
 export TMPDIR=/dfs5/bio/mkarikom/sbatch_temp
 export NCPUS=5
 export NCPUSLOW=2
 export MEMPERCPU=6000
 export NODETMP=2000 # amount of /tmp space available, if this fills up then R might crash
-export slurmtimelimit=0-02:30:00
-export PROJECTDIR=/dfs5/bio/mkarikom/code/DURIAN
+# export slurmtimelimit=0-02:30:00
+export slurmtimelimit=0-00:30:00
+export PROJECTDIR=/dfs6/pub/mkarikom/code/DURIAN_paper_clean
 export BASEDIR=$PROJECTDIR/slurm
 
 export RUNMASTER=$BASEDIR/durian_pseudobulk/output/pseudobulk_$suffix,gProb_$gProbs,deProb_$deProbs,bLoc_$batchFacLoc,bScale_$batchFacScale,dLoc_$deFacLoc,dScale_$deFacScale
@@ -39,22 +42,21 @@ export JULIA_HOME=/opt/apps/julia/1.6.0/bin # make sure all workers can access t
 export JULIA_GR_PROVIDER=GR
 export R_HOME=/opt/apps/R/4.0.4/lib64/R # make sure JuliaCall/RCall can access R
 export R_LIBS_USER=/data/homezvol2/mkarikom/R/x86_64-pc-linux-gnu-library/4.0 # norm() error
-export LD_LIBRARY_PATH=/opt/apps/anaconda/2020.07/lib:$LD_LIBRARY_PATH # prevent libpng16.so error when loading julia
 export PYTHONPATH=/dfs6/pub/mkarikom/Python2.7_Pip_Packages
-
-export ETCLIB=$BASEDIR/scrabble_helper_functions/library_other_methods.R
 
 module purge
 module load zlib
-# module load eigen
-# module load hdf5
-# module load gcc
-# module load lapack
-# module load OpenBLAS
-# module load mkl
+module load eigen
+module load hdf5
+module load gcc
+module load lapack
+module load OpenBLAS
+module load mkl
 module load julia/1.6.0
 module load R/4.0.4
 module load python/2.7.17 # needed for ursm, pypolyagamma
+
+export ETCLIB=$BASEDIR/scrabble_helper_functions/library_other_methods.R
 
 ######################################################################################
 # ursm params
@@ -141,7 +143,6 @@ for dropMids in "${DROPOUTMIDS[@]}"; do
         echo start splatter gen $PBULKDIR
         sbatchid=$(sbatch \
         --account=$SLURMACCT \
-        --wait \
         --tmp=$NODETMP \
         --array=1-$NSIM \
         --partition=$SLURMPARTITION \
@@ -162,7 +163,7 @@ for dropMids in "${DROPOUTMIDS[@]}"; do
 
         IMPUTE_METHODS=( DrImpute dropout )
         SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task.sub
-        export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods_clusterMetrics_outerStats_clValid.R
+        export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods.R
         export nCoresAvail=$NCPUS # this is the number of workers we want
         export JULIA_NUM_THREADS=$NCPUS
 
@@ -178,7 +179,6 @@ for dropMids in "${DROPOUTMIDS[@]}"; do
                 # collect the job ids `sbatchid` in an array
                 sbatchid=$(sbatch \
                 --account=$SLURMACCT \
-                --wait \
                 --tmp=$NODETMP \
                 --array=1-$NSIM \
                 --partition=$SLURMPARTITION \
@@ -220,7 +220,6 @@ for dropMids in "${DROPOUTMIDS[@]}"; do
                         # collect the job ids `sbatchid` in an array
                         sbatchid=$(sbatch \
                         --account=$SLURMACCT \
-                        --wait \
                         --tmp=$NODETMP \
                         --array=1-$NSIM \
                         --partition=$SLURMPARTITION \
@@ -262,14 +261,13 @@ for dropMids in "${DROPOUTMIDS[@]}"; do
 
                 export NJULIACORES=$((NPBULK+1)) # this should be leq the number of PBULKS 
                 SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task.sub
-                export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods_clusterMetrics_outerStats_clValid.R
+                export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods.R
                 export nCoresAvail=$NCPUS # this is the number of workers we want
                 export JULIA_NUM_THREADS=$NCPUS
 
                 echo running durian music after $PSEUDODEPENDS
                 sbatchid=$(sbatch \
                 --account=$SLURMACCT \
-                --wait \
                 --tmp=$NODETMP \
                 --array=1-$NSIM \
                 --partition=$SLURMPARTITION \
@@ -312,14 +310,13 @@ for dropMids in "${DROPOUTMIDS[@]}"; do
                 export NJULIACORES=$((NPBULK+1)) # this should be leq the number of PBULKS 
 
                 SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task.sub
-                export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods_clusterMetrics_outerStats_clValid.R
+                export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods.R
                 export nCoresAvail=$NCPUS # this is the number of workers we want
                 export JULIA_NUM_THREADS=$NCPUS
 
                 echo running durian dslda after $PSEUDODEPENDS
                 sbatchid=$(sbatch \
                 --account=$SLURMACCT \
-                --wait \
                 --tmp=$NODETMP \
                 --array=1-$NSIM \
                 --partition=$SLURMPARTITION \
@@ -350,7 +347,6 @@ for dropMids in "${DROPOUTMIDS[@]}"; do
         echo running ursm prep after $PSEUDODEPENDS
         sbatchid=$(sbatch \
         --account=$SLURMACCT \
-        --wait \
         --tmp=$NODETMP \
         --array=1-$NSIM \
         --partition=$SLURMPARTITION \
@@ -411,7 +407,6 @@ for dropMids in "${DROPOUTMIDS[@]}"; do
         echo running ursm err after $URSMDEPENDS2
         sbatchid=$(sbatch \
         --account=$SLURMACCT \
-        --wait \
         --tmp=$NODETMP \
         --array=1-$NSIM \
         --partition=$SLURMPARTITION \
@@ -471,7 +466,6 @@ for dropMids in "${DROPOUTMIDS[@]}"; do
         sbatchid=$(sbatch \
         --account=$SLURMACCT \
         --tmp=$NODETMP \
-        --wait \
         --partition=$SLURMPARTITION \
         --cpus-per-task=$NCPUSLOW \
         --time=$slurmtimelimit \

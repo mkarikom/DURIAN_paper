@@ -48,8 +48,6 @@ module load R/4.0.4
 module load python/2.7.17 # needed for ursm, pypolyagamma
 
 export ETCLIB=$BASEDIR/scrabble_helper_functions/library_other_methods.R
-export SIGNALINGLIB=$BASEDIR/scrabble_helper_functions/library_signaling.R
-export MULTISETLIB=$BASEDIR/scrabble_helper_functions/library_signaling_multiset.R
 
 ######################################################################################
 # ursm params
