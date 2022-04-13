@@ -13,7 +13,7 @@ prefix=$dsname
 SLURMACCT=qnie_lab
 
 export EMDIAG=FALSE
-export SLURMPARTITION=free
+export SLURMPARTITION=standard
 export slurmtimelimit=3-00:00:00
 export PROJECTDIR=/dfs6/pub/mkarikom/code/DURIAN_paper_clean
 export BASEDIR=$PROJECTDIR/slurm
