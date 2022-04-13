@@ -13,8 +13,8 @@ prefix=$dsname
 SLURMACCT=qnie_lab
 
 export EMDIAG=FALSE
-export SLURMPARTITION=free
-export slurmtimelimit=3-00:00:00
+export SLURMPARTITION=debug
+export slurmtimelimit=0-00:30:00
 export PROJECTDIR=/dfs6/pub/mkarikom/code/DURIAN_paper_clean
 export BASEDIR=$PROJECTDIR/slurm
 export OUTPUTMASTER=$BASEDIR/${dsname}/output.clusterMetrics.$SLURMPARTITION.$suffix
