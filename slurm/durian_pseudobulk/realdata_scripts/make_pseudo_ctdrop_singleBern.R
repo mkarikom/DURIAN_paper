@@ -10,7 +10,6 @@ library(purrr)
 # arguments
 ################################################################
 
-durianlib = Sys.getenv("DURIANLIB")
 scdatadir = Sys.getenv("SCDATADIR")
 scprefix = Sys.getenv("SCPREFIX")
 datapath = Sys.getenv("DATAPATH")

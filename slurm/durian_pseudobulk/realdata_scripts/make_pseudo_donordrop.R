@@ -10,8 +10,7 @@ library(purrr)
 # arguments
 ################################################################
 
-durianlib = Sys.getenv("DURIANLIB")
-scdatadir = Sys.getenv("SCDATADIR")
+kscdatadir = Sys.getenv("SCDATADIR")
 scprefix = Sys.getenv("SCPREFIX")
 datapath = Sys.getenv("DATAPATH")
 pseudocount = as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
