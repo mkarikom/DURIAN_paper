@@ -18,7 +18,6 @@ export slurmtimelimit=3-00:00:00
 export PROJECTDIR=/dfs6/pub/mkarikom/code/DURIAN_paper_clean
 export BASEDIR=$PROJECTDIR/slurm
 export OUTPUTMASTER=$BASEDIR/${dsname}/output.clusterMetrics.$SLURMPARTITION.$suffix
-export NBULK=5
 export NCPUS=15
 
 MEMP=16000M # memory in mb, try increasing if nodes are not avail
@@ -28,12 +27,7 @@ export JULIA_PROJECT=${PROJECTDIR} # make sure all workers can access the projec
 export JULIA_HOME=/opt/apps/julia/1.6.0/bin # make sure all workers can access the project enviroment
 export R_HOME=/opt/apps/R/4.0.4/lib64/R # make sure JuliaCall/RCall can access R
 export R_LIBS_USER=/data/homezvol2/mkarikom/R/x86_64-pc-linux-gnu-library/4.0 # norm() error
-export LOCAL_R_LIBS_USER=/tmp/mkarikom/mylibs
 export JULIA_GR_PROVIDER=GR
-
-
-# export JULIA_DEPOT_PATH=/dfs5/bio/mkarikom/Julia6.0_Depot:$JULIA_DEPOT_PATH
-# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/dfs6/pub/mkarikom/binaries/anaconda3/lib/ # needed for pypolyagamma
 export PYTHONPATH=/dfs6/pub/mkarikom/Python2.7_Pip_Packages
 
 module purge
@@ -66,7 +60,7 @@ export ScrnSDCIters=500000 # 500000
 export DunIterOuter=10 # 10
 export DunIterInner=10 # 10
 export DunSDCIters=500000 # 500000
-export MCNITER=5000
+export MCNITER=2500
 
 export ERR_IN_THRESH=1e-5 # 1e-5
 export ERR_OUT_THRESH=1e-7 # 1e-7
@@ -98,7 +92,7 @@ export nsleepdatapath=1 # how long to sleep after creating pb data path
 ######################################################################################
 # ursm params
 ######################################################################################
-export number_of_cell_types=14 # for gupta is 11, for baron is 14, for he is 8
+export number_of_cell_types=11 # for gupta is 11, for baron is 14, for he is 8
 export burn_in_length=10
 export gibbs_sample_number=10
 
