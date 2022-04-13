@@ -66,6 +66,7 @@ export ScrnSDCIters=500000 # 500000
 export DunIterOuter=10 # 10
 export DunIterInner=10 # 10
 export DunSDCIters=500000 # 500000
+export MCNITER=5000
 
 export ERR_IN_THRESH=1e-5 # 1e-5
 export ERR_OUT_THRESH=1e-7 # 1e-7
