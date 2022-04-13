@@ -19,7 +19,7 @@ export PROJECTDIR=/dfs6/pub/mkarikom/code/DURIAN_paper_clean
 export BASEDIR=$PROJECTDIR/slurm
 export OUTPUTMASTER=$BASEDIR/${dsname}/output.clusterMetrics.$SLURMPARTITION.$suffix
 export NBULK=5
-export NCPUS=10
+export NCPUS=15
 
 MEMP=16000M # memory in mb, try increasing if nodes are not avail
 export SOURCEPATH=$BASEDIR/${dsname}/durian_data
@@ -209,7 +209,7 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                         mkdir -p $SBATCHERRDIR
                         mkdir -p $SBATCHOUTDIR
 
-                        export NJULIACORES=$((NBULK+1)) # this should be leq the number of PBULKS 
+                        export NJULIACORES=$((NCPUS-1)) # this should be leq the number of PBULKS 
                         SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task.sub
                         export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods.R
                         export nCoresAvail=$NCPUS # this is the number of workers we want
@@ -250,11 +250,11 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                         export LDASCALESC=column #
                         export LDASCALEFACBLK=10000
                         export MINCELLSTOPICCORP=1
-                        export MCNPARTITIONS=$NBULK
+                        export MCNPARTITIONS=$((NCPUS-1))
                         export MCNCHAINS=2
                         export MCTHINNING=1
                         export MCBURNRATE=0.5
-                        export NJULIACORES=$((NBULK+1)) # this should be leq the number of PBULKS 
+                        export NJULIACORES=$((NCPUS-1)) # this should be leq the number of PBULKS 
 
                         SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task.sub
                         export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods.R
