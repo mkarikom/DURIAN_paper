@@ -13,12 +13,12 @@ prefix=$dsname
 SLURMACCT=qnie_lab
 
 export EMDIAG=FALSE
-export SLURMPARTITION=highmem
+export SLURMPARTITION=free
 export slurmtimelimit=0-00:30:00
 export PROJECTDIR=/dfs6/pub/mkarikom/code/DURIAN_paper_clean
 export BASEDIR=$PROJECTDIR/slurm
 export OUTPUTMASTER=$BASEDIR/${dsname}/output.clusterMetrics.$SLURMPARTITION.$suffix
-export NCPUS=22
+export NCPUS=5
 
 MEMP=16000M # memory in mb, try increasing if nodes are not avail
 export SOURCEPATH=$BASEDIR/${dsname}/durian_data
