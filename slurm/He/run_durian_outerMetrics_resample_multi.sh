@@ -13,13 +13,14 @@ prefix=$dsname
 SLURMACCT=qnie_lab
 
 export EMDIAG=FALSE
-export SLURMPARTITION=debug
+export SLURMPARTITION=highmem
 # export slurmtimelimit=3-00:00:00
 export slurmtimelimit=0-00:30:00
 export PROJECTDIR=/dfs6/pub/mkarikom/code/DURIAN_paper_clean
 export BASEDIR=$PROJECTDIR/slurm
 export OUTPUTMASTER=$BASEDIR/${dsname}/output.clusterMetrics.$SLURMPARTITION.$suffix
 export NBULK=22
+MEMP=10000M # memory in mb, try increasing if nodes are not avail
 export NCPUS=$((NBULK+1))
 # export MAXREP=20
 export MAXREP=3
@@ -27,7 +28,6 @@ export SUBTARGETSIZE=2000 # 500
 export SUBMINCELLS=10 # 10
 export SUBGENERATE=0.01 # 0.01
 
-MEMP=16000M # memory in mb, try increasing if nodes are not avail
 export SOURCEPATH=$BASEDIR/${dsname}/durian_data
 
 export JULIA_PROJECT=${PROJECTDIR} # make sure all workers can access the project enviroment
