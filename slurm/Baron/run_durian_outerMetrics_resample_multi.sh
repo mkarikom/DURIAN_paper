@@ -22,7 +22,7 @@ export NBULK=10
 export NCPUS=$((NBULK+1))
 # export MAXREP=20
 export MAXREP=5
-export SUBTARGETSIZE=500 # 500
+export SUBTARGETSIZE=1000 # 500
 export SUBMINCELLS=5 # 10
 export SUBGENERATE=0.001 # 0.01
 
