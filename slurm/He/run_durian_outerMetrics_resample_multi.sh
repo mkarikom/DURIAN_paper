@@ -13,33 +13,27 @@ prefix=$dsname
 SLURMACCT=qnie_lab
 
 export EMDIAG=FALSE
-export SLURMPARTITION=standard
+export SLURMPARTITION=free
 export slurmtimelimit=3-00:00:00
 export PROJECTDIR=/dfs6/pub/mkarikom/code/DURIAN_paper_clean
 export BASEDIR=$PROJECTDIR/slurm
 export OUTPUTMASTER=$BASEDIR/${dsname}/output.clusterMetrics.$SLURMPARTITION.$suffix
 export NBULK=7
-export NCPUS=10
-export MAXREP=20
-export SUBTARGETSIZE=500
-export SUBMINCELLS=10
-export SUBGENERATE=0.01
-
+export NCPUS=$((NBULK+1))
+# export MAXREP=20
+export MAXREP=5
+export SUBTARGETSIZE=1000 # 500
+export SUBMINCELLS=5 # 10
+export SUBGENERATE=0.001 # 0.01
 
 MEMP=16000M # memory in mb, try increasing if nodes are not avail
 export SOURCEPATH=$BASEDIR/${dsname}/durian_data
-export NVME_NODESEXCLUDE=$BASEDIR/slurm_housekeeping/nodes_exclude_avx_${SLURMPARTITION}.txt
 
 export JULIA_PROJECT=${PROJECTDIR} # make sure all workers can access the project enviroment
 export JULIA_HOME=/opt/apps/julia/1.6.0/bin # make sure all workers can access the project enviroment
 export R_HOME=/opt/apps/R/4.0.4/lib64/R # make sure JuliaCall/RCall can access R
 export R_LIBS_USER=/data/homezvol2/mkarikom/R/x86_64-pc-linux-gnu-library/4.0 # norm() error
-export LOCAL_R_LIBS_USER=/tmp/mkarikom/mylibs
 export JULIA_GR_PROVIDER=GR
-
-
-# export JULIA_DEPOT_PATH=/dfs5/bio/mkarikom/Julia6.0_Depot:$JULIA_DEPOT_PATH
-# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/dfs6/pub/mkarikom/binaries/anaconda3/lib/ # needed for pypolyagamma
 export PYTHONPATH=/dfs6/pub/mkarikom/Python2.7_Pip_Packages
 
 module purge
@@ -59,8 +53,8 @@ export SIGNALINGLIB=$BASEDIR/scrabble_helper_functions/library_signaling.R
 export MULTISETLIB=$BASEDIR/scrabble_helper_functions/library_signaling_multiset.R
 
 # save all the enviroment stuff to the project dir
-pip freeze > $PROJECTDIR/requirements.txt
-Rscript -e "sessionInfo()" >> $PROJECTDIR/session_info.txt
+pip freeze > $PROJECTDIR/requirements.req
+Rscript -e "sessionInfo()" >> $PROJECTDIR/session_info.req
 
 ######################################################################################
 # durian/scrabble params
@@ -72,6 +66,7 @@ export ScrnSDCIters=500000 # 500000
 export DunIterOuter=10 # 10
 export DunIterInner=10 # 10
 export DunSDCIters=500000 # 500000
+export MCNITER=2500
 
 export ERR_IN_THRESH=1e-5 # 1e-5
 export ERR_OUT_THRESH=1e-7 # 1e-7
@@ -79,6 +74,7 @@ export RUNOUTERSTATS=TRUE
 export RUNSTABILITY=FALSE
 export INITSCRABBLE=FALSE
 export SUMMARIZEDECONV=TRUE
+export USEIRLBA=FALSE # prevent instability for benchmarks, this will take longer
 
 export DECONVGENETHRESH=-0.001
 export SCRGENETHRESH=-0.001
@@ -90,7 +86,6 @@ export durianEps=1e-3
 
 TypeList=( "" )
 PREFIXTUPLES=( "HeLS.sense0.1.cpm.sub5000;SuarezLS.sense0.1.cpm" "HeNL.sense0.1.cpm.sub5000;SuarezNL.sense0.1.cpm" )
-export PREFIXDELIM="HeLS.sense0.1.cpm.sub5000;SuarezLS.sense0.1.cpm:HeNL.sense0.1.cpm.sub5000;SuarezNL.sense0.1.cpm"
 
 nsleepsim=60 # amount of time to sleep after generating sc simulation (prevent pseudo from erroring upon creation)
 nsleepfit=2 # amount of time to sleep in between steps that seem to miss key environment vars
@@ -131,7 +126,7 @@ for SIMREP in $(seq 1 $MAXREP); do
 
                         SBATCHSUB=$BASEDIR/application_scripts/run_durian.sub
                         IMPUTE_METHODS=( DrImpute dropout )
-                        export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods_clusterMetrics_outerStats_clValid_subsample.R
+                        export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods_subsample.R
 
                         for IMPUTE_METHOD in "${IMPUTE_METHODS[@]}"; do
                                 export IMPUTE_METHOD
@@ -148,10 +143,9 @@ for SIMREP in $(seq 1 $MAXREP); do
                                 --cpus-per-task=$NCPUS \
                                 --time=$slurmtimelimit \
                                 --mem-per-cpu=$MEMP \
-                                --exclude=$NVME_NODESEXCLUDE \
                                 --job-name=$SBATCHJOBNAME \
-                                --error=$SBATCHERRDIR/err_%x_%A.txt \
-                                --out=$SBATCHOUTDIR/out_%x_%A.txt \
+                                --error=$SBATCHERRDIR/err_%x_%A.log \
+                                --out=$SBATCHOUTDIR/out_%x_%A.log \
                                 $SBATCHSUB | cut -f 4 -d' ')
                                 NONURSMDEPENDS+=":${sbatchid}"
                                 MULTISETDEPENDS+=":${sbatchid}"
@@ -184,7 +178,6 @@ for SIMREP in $(seq 1 $MAXREP); do
                                         --cpus-per-task=$NCPUS \
                                         --time=$slurmtimelimit \
                                         --mem-per-cpu=$MEMP \
-                                        --exclude=$NODESEXCLUDE \
                                         --job-name=$SBATCHJOBNAME \
                                         --error=$SBATCHERRDIR/err_%x_%A_%a.log \
                                         --out=$SBATCHOUTDIR/out_%x_%A_%a.log \
@@ -209,15 +202,15 @@ for SIMREP in $(seq 1 $MAXREP); do
                                 export IMPUTE_METHOD=DURIAN
                                 export DECONVMETHOD=MuSiC
 
-                                SBATCHJOBNAME=${PREFIXTUPLE}_${IMPUTE_METHOD}_$suffix
-                                SBATCHOUTDIR=${OUTBASEDIR}/output_logs/pseudo_fit_$IMPUTE_METHOD/out
-                                SBATCHERRDIR=${OUTBASEDIR}/output_logs/pseudo_fit_$IMPUTE_METHOD/err
+                                SBATCHJOBNAME=${PREFIXTUPLE}_${IMPUTE_METHOD}.${DECONVMETHOD}_$suffix
+                                SBATCHOUTDIR=${OUTBASEDIR}/output_logs/pseudo_fit_$IMPUTE_METHOD.$DECONVMETHOD/out
+                                SBATCHERRDIR=${OUTBASEDIR}/output_logs/pseudo_fit_$IMPUTE_METHOD.$DECONVMETHOD/err
                                 mkdir -p $SBATCHERRDIR
                                 mkdir -p $SBATCHOUTDIR
 
                                 export NJULIACORES=$((NBULK+1)) # this should be leq the number of PBULKS 
                                 SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task.sub
-                                export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods_clusterMetrics_outerStats_clValid_subsample.R
+                                export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods_subsample.R
                                 export nCoresAvail=$NCPUS # this is the number of workers we want
                                 export JULIA_NUM_THREADS=$NCPUS
 
@@ -228,7 +221,6 @@ for SIMREP in $(seq 1 $MAXREP); do
                                 --cpus-per-task=$NCPUS \
                                 --time=$slurmtimelimit \
                                 --mem-per-cpu=$MEMP \
-                                --exclude=$NODESEXCLUDE \
                                 --job-name=$SBATCHJOBNAME \
                                 --error=$SBATCHERRDIR/err_%x_%A_%a.log \
                                 --out=$SBATCHOUTDIR/out_%x_%A_%a.log \
@@ -245,9 +237,9 @@ for SIMREP in $(seq 1 $MAXREP); do
                                 export IMPUTE_METHOD=DURIAN
                                 export DECONVMETHOD=dsLDA
 
-                                SBATCHJOBNAME=${PREFIXTUPLE}_${IMPUTE_METHOD}_$suffix
-                                SBATCHOUTDIR=${OUTBASEDIR}/output_logs/pseudo_fit_$IMPUTE_METHOD/out
-                                SBATCHERRDIR=${OUTBASEDIR}/output_logs/pseudo_fit_$IMPUTE_METHOD/err
+                                SBATCHJOBNAME=${PREFIXTUPLE}_${IMPUTE_METHOD}.${DECONVMETHOD}_$suffix
+                                SBATCHOUTDIR=${OUTBASEDIR}/output_logs/pseudo_fit_$IMPUTE_METHOD.$DECONVMETHOD/out
+                                SBATCHERRDIR=${OUTBASEDIR}/output_logs/pseudo_fit_$IMPUTE_METHOD.$DECONVMETHOD/err
                                 mkdir -p $SBATCHERRDIR
                                 mkdir -p $SBATCHOUTDIR
 
@@ -256,14 +248,14 @@ for SIMREP in $(seq 1 $MAXREP); do
                                 export LDASCALESC=column #
                                 export LDASCALEFACBLK=10000
                                 export MINCELLSTOPICCORP=1
-                                export MCNPARTITIONS=$NPBULK
+                                export MCNPARTITIONS=$NBULK
                                 export MCNCHAINS=2
                                 export MCTHINNING=1
                                 export MCBURNRATE=0.5
                                 export NJULIACORES=$((NBULK+1)) # this should be leq the number of PBULKS 
 
                                 SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task.sub
-                                export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods_clusterMetrics_outerStats_clValid_subsample.R
+                                export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods_subsample.R
                                 export nCoresAvail=$NCPUS # this is the number of workers we want
                                 export JULIA_NUM_THREADS=$NCPUS
 
@@ -274,7 +266,6 @@ for SIMREP in $(seq 1 $MAXREP); do
                                 --cpus-per-task=$NCPUS \
                                 --time=$slurmtimelimit \
                                 --mem-per-cpu=$MEMP \
-                                --exclude=$NODESEXCLUDE \
                                 --job-name=$SBATCHJOBNAME \
                                 --error=$SBATCHERRDIR/err_%x_%A_%a.log \
                                 --out=$SBATCHOUTDIR/out_%x_%A_%a.log \
