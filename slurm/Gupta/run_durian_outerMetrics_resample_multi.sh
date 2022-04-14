@@ -21,10 +21,10 @@ export OUTPUTMASTER=$BASEDIR/${dsname}/output.clusterMetrics.$SLURMPARTITION.$su
 export NBULK=10
 export NCPUS=$((NBULK+1))
 # export MAXREP=20
-export MAXREP=5
-export SUBTARGETSIZE=1000 # 500
-export SUBMINCELLS=5 # 10
-export SUBGENERATE=0.001 # 0.01
+export MAXREP=3
+export SUBTARGETSIZE=2000 # 500
+export SUBMINCELLS=10 # 10
+export SUBGENERATE=0.01 # 0.01
 
 MEMP=16000M # memory in mb, try increasing if nodes are not avail
 export SOURCEPATH=$BASEDIR/${dsname}/durian_data
