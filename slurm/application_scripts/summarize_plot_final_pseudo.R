@@ -56,7 +56,7 @@ for(i in 1:length(dirnames)){
         print(paste0("found impute model ",logfn))
         runlog = read.csv(logfn,row.names=1)
         runlog = cbind(runlog,params)
-        df = rbind.fill(df,runlog)
+        df = plyr::rbind.fill(df,runlog)
       }
     }
   }
