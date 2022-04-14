@@ -138,8 +138,7 @@ tsne_plot <- function(dat,meta,plottitle,col="cellType",ptsize=5){
     # browser()
     rownames(meta) = meta$cellID
 
-    
-    perplexity = floor((ncol(dat) - 1) / 3
+    perplexity = floor((ncol(dat) - 1) /3)
     tsne <- Rtsne::Rtsne(t(dat),perplexity=perplexity,check_duplicates=FALSE)
 
     # df <- data.frame(x = tsne$Y[,1],
