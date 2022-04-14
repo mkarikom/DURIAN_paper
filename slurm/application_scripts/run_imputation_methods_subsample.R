@@ -16,9 +16,9 @@ library(CellChat)
 library(ComplexHeatmap)
 library(reshape2, include.only = c("melt"))
 library(umap,lib.loc="/data/homezvol2/mkarikom/R/x86_64-pc-linux-gnu-library/4.0")
-library(SCRABBLE,lib.loc="/data/homezvol2/mkarikom/R/x86_64-pc-linux-gnu-library/4.0")
-library(clValid,lib.loc="/data/homezvol2/mkarikom/R/x86_64-pc-linux-gnu-library/4.0")
+library(mtSCRABBLE,lib.loc="/data/homezvol2/mkarikom/R/x86_64-pc-linux-gnu-library/4.0")
 library(fpc,lib.loc="/data/homezvol2/mkarikom/R/x86_64-pc-linux-gnu-library/4.0")
+library(DURIAN,lib.loc="/data/homezvol2/mkarikom/R/x86_64-pc-linux-gnu-library/4.0")
 
 ### arguments
 datapath = Sys.getenv("DATAPATH")
@@ -41,6 +41,7 @@ DunSDCIters = as.integer(Sys.getenv("DunSDCIters"))
 DurianAlpha=as.numeric(Sys.getenv("DurianAlpha"))
 DurianBeta=as.numeric(Sys.getenv("DurianBeta"))
 DurianGamma=as.numeric(Sys.getenv("DurianGamma"))
+useirlba=as.logical(Sys.getenv("USEIRLBA"))
 
 print(paste0("value of RUNOUTERSTATS=",Sys.getenv("RUNOUTERSTATS")))
 if(nchar(Sys.getenv("RUNOUTERSTATS"))>1){
@@ -83,24 +84,28 @@ print(paste0("exists truec=",file.exists(fn_trueC)))
 print(paste0("exists truep=",file.exists(fn_trueP)))
 
 if(file.exists(fn_trueC)){
+    print("case 1")
     C = read.csv(fn_C,row.names=1)
     T = read.csv(fn_T,row.names=1)
     pDataC = read.csv(fn_pDataC,row.names=1)
     trueC = read.csv(fn_trueC,row.names=1)
     trueP = read.csv(fn_trueP,row.names=1)
 }else if(file.exists(file.path(sourcepath,"trueC.csv"))){
+    print("case 2")
     C = read.csv(file.path(sourcepath,"C.csv"),row.names=1)
     T = read.csv(file.path(sourcepath,"T.csv"),row.names=1)
     pDataC = read.csv(file.path(sourcepath,"pDataC.csv"),row.names=1)
     trueC = read.csv(file.path(sourcepath,"trueC.csv"),row.names=1)
     trueP = read.csv(file.path(sourcepath,"trueP.csv"),row.names=1)
 }else if(file.exists(fn_C)){
+    print("case 3")
     C = read.csv(fn_C,row.names=1)
     T = read.csv(fn_T,row.names=1)
     pDataC = read.csv(fn_pDataC,row.names=1)
     trueC = NULL
     trueP = NULL
 }else if(file.exists(file.path(sourcepath,"C.csv"))){
+    print("case 4")
     C = read.csv(file.path(sourcepath,"C.csv"),row.names=1)
     T = read.csv(file.path(sourcepath,"T.csv"),row.names=1)
     pDataC = read.csv(file.path(sourcepath,"pDataC.csv"),row.names=1)
@@ -139,9 +144,6 @@ if(imethod=="dropout"){
         imputebenchmark = trueC)
 
     # save cluster metrics
-
-    cstats_list = run_fpc(scdata=impresult,pDataC=pDataC,n_samp_cell=1e8)
-    cstats = c(unlist(cstats_list[c("dunn","dunn2")]),sparsity = getsparsity(impresult))
     logdf <- data.frame(
         iter = as.integer(c(NA)),
         ldaMeanRhat = as.numeric(c(NA)),
@@ -149,7 +151,6 @@ if(imethod=="dropout"){
         converged=as.integer(c(1)),
         status=c("converged"),
         wallclock=as.numeric(c(0)))
-    logdf = cbind(logdf,t(cstats))
     write.csv(logdf,file.path(savepath,paste0(imethod,"_logdf.csv")))
     run_cluster_plots(imputedC=impresult,pdataC=pDataC,trueC=trueC,savepath=file.path(savepath,"cluster_plots"))
     write.csv(pDataC,file.path(savepath,"pDataC.csv"))
@@ -159,8 +160,6 @@ if(imethod=="dropout"){
     print("running drimpute")
     set.seed(simrep)
     
-    cstats_list = run_fpc(scdata=C,pDataC=pDataC,n_samp_cell=1e8)
-    cstats = c(unlist(cstats_list[c("dunn","dunn2")]),sparsity = getsparsity(C))
     logdf0 <- data.frame(
         iter = as.integer(c(NA)),
         ldaMeanRhat = as.numeric(c(NA)),
@@ -168,7 +167,6 @@ if(imethod=="dropout"){
         converged=as.integer(c(1)),
         status=c("converged"),
         wallclock=as.numeric(c(0)))
-    logdf0 = cbind(logdf0,t(cstats))
 
     Start=Sys.time()
     impresult=run_drimpute(
@@ -181,8 +179,6 @@ if(imethod=="dropout"){
     totaltime = difftime(End_POSIX,Start_POSIX,units="mins")
 
     # save cluster metrics
-    cstats_list = run_fpc(scdata=impresult,pDataC=pDataC,n_samp_cell=1e8)
-    cstats = c(unlist(cstats_list[c("dunn","dunn2")]),sparsity = getsparsity(impresult))
     logdf <- data.frame(
         iter = as.integer(c(NA)),
         ldaMeanRhat = as.numeric(c(NA)),
@@ -190,7 +186,6 @@ if(imethod=="dropout"){
         converged=as.integer(c(1)),
         status=c("converged"),
         wallclock=as.numeric(c(totaltime)))
-    logdf = cbind(logdf,t(cstats))
     write.csv(rbind(logdf0,logdf),file.path(savepath,paste0(imethod,"_logdf.csv")))
     run_cluster_plots(imputedC=impresult,pdataC=pDataC,trueC=trueC,savepath=file.path(savepath,"cluster_plots"))
     write.csv(pDataC,file.path(savepath,"pDataC.csv"))
@@ -200,8 +195,6 @@ if(imethod=="dropout"){
     print("running scrabble with outer stats")
     set.seed(simrep)
 
-    cstats_list = run_fpc(scdata=C,pDataC=pDataC,n_samp_cell=1e8)
-    cstats = c(unlist(cstats_list[c("dunn","dunn2")]),sparsity = getsparsity(C))
     logdf0 <- data.frame(
         iter = as.integer(c(NA)),
         ldaMeanRhat = as.numeric(c(NA)),
@@ -209,7 +202,6 @@ if(imethod=="dropout"){
         converged=as.integer(c(1)),
         status=c("converged"),
         wallclock=as.numeric(c(0)))
-    logdf0 = cbind(logdf0,t(cstats))
 
     Start=Sys.time()
     impresult_list=run_scrabble(
@@ -225,7 +217,8 @@ if(imethod=="dropout"){
         outerStats = runouterstats,
         metadata=pDataC,
         imputebenchmark = trueC,
-        runstability = runstability)
+        runstability = runstability,
+        useIrlba=useirlba)
     End=Sys.time()
     Start_POSIX = as.POSIXct(as.numeric(Start), origin="1970-01-01")
     End_POSIX = as.POSIXct(as.numeric(End), origin="1970-01-01")
@@ -233,8 +226,6 @@ if(imethod=="dropout"){
 
     impresult = impresult_list[["C"]]
     # save cluster metrics
-    cstats_list = run_fpc(scdata=impresult,pDataC=pDataC,n_samp_cell=1e8)
-    cstats = c(unlist(cstats_list[c("dunn","dunn2")]),sparsity = getsparsity(impresult))
     logdf <- data.frame(
         iter = as.integer(c(NA)),
         ldaMeanRhat = as.numeric(c(NA)),
@@ -242,7 +233,6 @@ if(imethod=="dropout"){
         converged=as.integer(c(1)),
         status=c("converged"),
         wallclock=as.numeric(c(totaltime)))
-    logdf = cbind(logdf,t(cstats))
     write.csv(rbind(logdf0,logdf),file.path(savepath,paste0(imethod,"_logdf.csv")))
     run_cluster_plots(imputedC=impresult,pdataC=pDataC,trueC=trueC,savepath=file.path(savepath,"cluster_plots"))
     write.csv(pDataC,file.path(savepath,"pDataC.csv"))
@@ -252,8 +242,6 @@ if(imethod=="dropout"){
     print("running mtscrabble with outer stats")
     set.seed(simrep)
 
-    cstats_list = run_fpc(scdata=C,pDataC=pDataC,n_samp_cell=1e8)
-    cstats = c(unlist(cstats_list[c("dunn","dunn2")]),sparsity = getsparsity(C))
     logdf0 <- data.frame(
         iter = as.integer(c(NA)),
         ldaMeanRhat = as.numeric(c(NA)),
@@ -261,7 +249,6 @@ if(imethod=="dropout"){
         converged=as.integer(c(1)),
         status=c("converged"),
         wallclock=as.numeric(c(0)))
-    logdf0 = cbind(logdf0,t(cstats))
 
     Start=Sys.time()
     impresult_list=run_scrabble_m(
@@ -278,7 +265,8 @@ if(imethod=="dropout"){
         thetahat = t(trueP),
         outerStats = runouterstats,
         imputebenchmark = trueC,
-        runstability = runstability)
+        runstability = runstability,
+        useIrlba=useirlba)
     End=Sys.time()
     Start_POSIX = as.POSIXct(as.numeric(Start), origin="1970-01-01")
     End_POSIX = as.POSIXct(as.numeric(End), origin="1970-01-01")
@@ -287,8 +275,6 @@ if(imethod=="dropout"){
     impresult = impresult_list[["C"]]
 
     # save cluster metrics
-    cstats_list = run_fpc(scdata=impresult,pDataC=pDataC,n_samp_cell=1e8)
-    cstats = c(unlist(cstats_list[c("dunn","dunn2")]),sparsity = getsparsity(impresult))
     logdf <- data.frame(
         iter = as.integer(c(NA)),
         ldaMeanRhat = as.numeric(c(NA)),
@@ -296,7 +282,6 @@ if(imethod=="dropout"){
         converged=as.integer(c(1)),
         status=c("converged"),
         wallclock=as.numeric(c(totaltime)))
-    logdf = cbind(logdf,t(cstats))
     write.csv(rbind(logdf0,logdf),file.path(savepath,paste0(imethod,"_logdf.csv")))
     run_cluster_plots(imputedC=impresult,pdataC=pDataC,trueC=trueC,savepath=file.path(savepath,"cluster_plots"))
     write.csv(pDataC,file.path(savepath,"pDataC.csv"))
@@ -350,7 +335,8 @@ if(imethod=="dropout"){
         outerStats = runouterstats,
         durianEps=durianEps,
         saveImputedStep=TRUE,
-        runstability = runstability)
+        runstability = runstability,
+        useIrlba=useirlba)
     impresult = impresult_list[["C"]]
     run_cluster_plots(imputedC=impresult,pdataC=pDataC,trueC=trueC,savepath=file.path(savepath,"cluster_plots"))
     write.csv(pDataC,file.path(savepath,"pDataC.csv"))

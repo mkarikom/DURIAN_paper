@@ -80,7 +80,6 @@ export durianEps=1e-3
 
 TypeList=( "" )
 PREFIXTUPLES=( "BaronSC.DM.isletVST1K05;SegerstolpeBulk.DM.cpm" "BaronSC.H.isletVST1K05;SegerstolpeBulk.H.cpm" )
-export CELLCHATDB="CellChatDB.human"
 
 nsleepsim=60 # amount of time to sleep after generating sc simulation (prevent pseudo from erroring upon creation)
 nsleepfit=2 # amount of time to sleep in between steps that seem to miss key environment vars
