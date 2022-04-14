@@ -2,6 +2,7 @@
 # 
 # Copyright 2019 Francisco Avila Cobos, 2021 Matt Karikomi
 library(doParallel)
+library(DURIAN,lib.loc="/data/homezvol2/mkarikom/R/x86_64-pc-linux-gnu-library/4.0")
 
 ### arguments
 datapath = Sys.getenv("DATAPATH")
