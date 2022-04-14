@@ -21,7 +21,7 @@ export OUTPUTMASTER=$BASEDIR/${dsname}/output.clusterMetrics.$SLURMPARTITION.$su
 export NBULK=7
 export NCPUS=$((NBULK+1))
 # export MAXREP=20
-export MAXREP=2
+export MAXREP=5
 export SUBTARGETSIZE=500
 export SUBMINCELLS=10
 export SUBGENERATE=0.01
@@ -248,7 +248,7 @@ for SIMREP in $(seq 1 $MAXREP); do
                                 export LDASCALESC=column #
                                 export LDASCALEFACBLK=10000
                                 export MINCELLSTOPICCORP=1
-                                export MCNPARTITIONS=$NPBULK
+                                export MCNPARTITIONS=$NBULK
                                 export MCNCHAINS=2
                                 export MCTHINNING=1
                                 export MCBURNRATE=0.5
