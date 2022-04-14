@@ -131,7 +131,7 @@ if(imethod=="dropout"){
     # save cluster metrics
 
     cstats_list = run_fpc(scdata=impresult,pDataC=pDataC,n_samp_cell=1e8)
-    cstats = c(unlist(cstats_list[c("dunn","dunn2")]),sparsity = getsparsity(impresult))
+    cstats = c(unlist(cstats_list[c("dunn","dunn2")]))
     logdf <- data.frame(
         iter = as.integer(c(NA)),
         ldaMeanRhat = as.numeric(c(NA)),
@@ -149,7 +149,7 @@ if(imethod=="dropout"){
     set.seed(simrep)
     
     cstats_list = run_fpc(scdata=C,pDataC=pDataC,n_samp_cell=1e8)
-    cstats = c(unlist(cstats_list[c("dunn","dunn2")]),sparsity = getsparsity(C))
+    cstats = c(unlist(cstats_list[c("dunn","dunn2")]))
     logdf0 <- data.frame(
         iter = as.integer(c(NA)),
         ldaMeanRhat = as.numeric(c(NA)),
@@ -171,7 +171,7 @@ if(imethod=="dropout"){
 
     # save cluster metrics
     cstats_list = run_fpc(scdata=impresult,pDataC=pDataC,n_samp_cell=1e8)
-    cstats = c(unlist(cstats_list[c("dunn","dunn2")]),sparsity = getsparsity(impresult))
+    cstats = c(unlist(cstats_list[c("dunn","dunn2")]))
     logdf <- data.frame(
         iter = as.integer(c(NA)),
         ldaMeanRhat = as.numeric(c(NA)),
@@ -189,7 +189,7 @@ if(imethod=="dropout"){
     set.seed(simrep)
 
     cstats_list = run_fpc(scdata=C,pDataC=pDataC,n_samp_cell=1e8)
-    cstats = c(unlist(cstats_list[c("dunn","dunn2")]),sparsity = getsparsity(C))
+    cstats = c(unlist(cstats_list[c("dunn","dunn2")]))
     logdf0 <- data.frame(
         iter = as.integer(c(NA)),
         ldaMeanRhat = as.numeric(c(NA)),
@@ -223,7 +223,7 @@ if(imethod=="dropout"){
     impresult = impresult_list[["C"]]
     # save cluster metrics
     cstats_list = run_fpc(scdata=impresult,pDataC=pDataC,n_samp_cell=1e8)
-    cstats = c(unlist(cstats_list[c("dunn","dunn2")]),sparsity = getsparsity(impresult))
+    cstats = c(unlist(cstats_list[c("dunn","dunn2")]))
     logdf <- data.frame(
         iter = as.integer(c(NA)),
         ldaMeanRhat = as.numeric(c(NA)),
@@ -241,7 +241,7 @@ if(imethod=="dropout"){
     set.seed(simrep)
 
     cstats_list = run_fpc(scdata=C,pDataC=pDataC,n_samp_cell=1e8)
-    cstats = c(unlist(cstats_list[c("dunn","dunn2")]),sparsity = getsparsity(C))
+    cstats = c(unlist(cstats_list[c("dunn","dunn2")]))
     logdf0 <- data.frame(
         iter = as.integer(c(NA)),
         ldaMeanRhat = as.numeric(c(NA)),
@@ -277,7 +277,7 @@ if(imethod=="dropout"){
 
     # save cluster metrics
     cstats_list = run_fpc(scdata=impresult,pDataC=pDataC,n_samp_cell=1e8)
-    cstats = c(unlist(cstats_list[c("dunn","dunn2")]),sparsity = getsparsity(impresult))
+    cstats = c(unlist(cstats_list[c("dunn","dunn2")]))
     logdf <- data.frame(
         iter = as.integer(c(NA)),
         ldaMeanRhat = as.numeric(c(NA)),
@@ -342,9 +342,6 @@ if(imethod=="dropout"){
         useIrlba=useirlba)
     impresult = impresult_list[["C"]]
     run_cluster_plots(imputedC=impresult,pdataC=pDataC,trueC=trueC,savepath=file.path(savepath,"cluster_plots"))
-    # cstats = run_clvalid(impdata=impresult)
-    # logdf = cbind(logdf,t(cstats))
-    # write.csv(rbind(logdf0,logdf),file.path(savepath,paste0(imethod,"_logdf.csv")))
 }
 
 # output the environment info

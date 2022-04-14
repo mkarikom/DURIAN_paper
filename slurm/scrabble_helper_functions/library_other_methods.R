@@ -40,8 +40,6 @@ run_null <- function(
       MeanGene=c(mean_cor_gene),
       MeanCell=c(mean_cor_cell),
       Dropout=c(dropout_rate),
-      sparsity_true=c(sparsity_true),
-      sparsity_obs=c(sparsity_obs),
     dropout_rate=c(dropout_rate_orig)),file.path(path,"imputation_loss.csv"))
   }
   return(scdata)
@@ -77,8 +75,6 @@ run_drimpute <- function(
     impute_metrics = getmetrics(result_sub,true_sub)
 
     dropout_rate = getdroprate(result_sub,true_sub)
-    sparsity_true = getsparsity(true_sub)
-    sparsity_obs = getsparsity(result_sub)
 
     impute_rmse = impute_metrics[["rmse"]]
     cor_gene = impute_metrics[["row"]]
@@ -95,8 +91,6 @@ run_drimpute <- function(
       MeanGene=c(mean_cor_gene),
       MeanCell=c(mean_cor_cell),
       Dropout=c(dropout_rate),
-      sparsity_true=c(sparsity_true),
-      sparsity_obs=c(sparsity_obs),
     dropout_rate=c(dropout_rate_orig)),file.path(path,"imputation_loss.csv"))
   }
 
@@ -179,8 +173,6 @@ analyze_ursm_tmp_files <- function(
 
   impute_metrics = getmetrics(trueC,ursmsc)
   dropout_rate = getdroprate(ursmsc,trueC)
-  sparsity_true = getsparsity(trueC)
-  sparsity_obs = getsparsity(ursmsc)
 
   impute_rmse = impute_metrics[["rmse"]]
   cor_gene = impute_metrics[["row"]]
@@ -198,8 +190,6 @@ analyze_ursm_tmp_files <- function(
     MeanGene=c(mean_cor_gene),
     MeanCell=c(mean_cor_cell),
     Dropout=c(dropout_rate),
-    sparsity_true=c(sparsity_true),
-    sparsity_obs=c(sparsity_obs),
     dropout_rate=c(dropout_rate_orig)),file.path(pbdir,"imputemodel_URSM","imputation_loss.csv"))
   write.csv(ursmsc,file=file.path(pbdir,"imputemodel_URSM","imputed_C.csv"))
   return(ursmsc)
