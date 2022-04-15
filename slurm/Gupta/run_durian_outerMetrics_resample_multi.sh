@@ -13,7 +13,7 @@ prefix=$dsname
 SLURMACCT=qnie_lab
 
 export EMDIAG=FALSE
-export SLURMPARTITION=highmem
+export SLURMPARTITION=free
 # export slurmtimelimit=3-00:00:00
 export slurmtimelimit=0-00:30:00
 export PROJECTDIR=/dfs6/pub/mkarikom/code/DURIAN_paper_clean
