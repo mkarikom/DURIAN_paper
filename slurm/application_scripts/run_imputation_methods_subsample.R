@@ -23,7 +23,6 @@ library(DURIAN,lib.loc="/data/homezvol2/mkarikom/R/x86_64-pc-linux-gnu-library/4
 ### arguments
 datapath = Sys.getenv("DATAPATH")
 sourcepath = Sys.getenv("SOURCEPATH")
-outputmaster = Sys.getenv("OUTPUTMASTER")
 prefix = strsplit(Sys.getenv("PREFIXTUPLE"),";")[[1]]
 imethod = Sys.getenv("IMPUTE_METHOD")
 deconv_method = Sys.getenv("DECONVMETHOD")
@@ -124,10 +123,11 @@ C = subsetsc(scremoutlier(C),generate=generate,return_obj=TRUE,nsd=3)
 pDataC = pDataC[colnames(C),]
 
 cttab = table(pDataC$cellType)
-toexclude = which(pDataC$cellType %in% names(which(cttab < mincells)))
-pDataC = pDataC[-toexclude,]
-C = C[,rownames(pDataC)]
+toinclude = which(pDataC$cellType %in% names(which(cttab >= mincells)))
 
+pDataC = pDataC[toinclude,]
+C = C[,rownames(pDataC)]
+T = T[rownames(C),]
 
 print("environment:")
 print(Sys.getenv())
