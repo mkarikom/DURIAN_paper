@@ -24,7 +24,7 @@ MEMP=10000M # memory in mb, try increasing if nodes are not avail
 export NCPUS=$((NBULK+1))
 # export MAXREP=20
 export MAXREP=3
-export SUBTARGETSIZE=2000 # 500
+export SUBTARGETSIZE=500 # 500
 export SUBMINCELLS=10 # 10
 export SUBGENERATE=0.01 # 0.01
 
