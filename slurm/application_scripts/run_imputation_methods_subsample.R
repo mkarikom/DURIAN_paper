@@ -69,7 +69,9 @@ source(Sys.getenv("ETCLIB"))
 source("slurm/scrabble_helper_functions/library_cluster_metrics.R")
 source("slurm/scrabble_helper_functions/library_extra_plots.R")
 
-# no slurm array for dispatching simulations, use internal numbering
+### additional methods
+g2s3_fn = Sys.getenv("G2S3LIB")
+cmfimpute_fn = Sys.getenv("CMFLIB")
 
 fn_T = file.path(sourcepath,paste0(prefix[2],"_T.csv"))
 fn_pDataC = file.path(sourcepath,paste0(prefix[1],"_pDataC.csv"))
@@ -338,6 +340,117 @@ if(imethod=="dropout"){
         runstability = runstability,
         useIrlba=useirlba)
     impresult = impresult_list[["C"]]
+    run_cluster_plots(imputedC=impresult,pdataC=pDataC,trueC=trueC,savepath=file.path(savepath,"cluster_plots"))
+    write.csv(pDataC,file.path(savepath,"pDataC.csv"))
+}else if(imethod=="ALRA"){
+    library(rsvd)
+    source(Sys.getenv("ALRALIB"))
+    savepath = file.path(datapath,paste0("imputemodel_",imethod,",simrep_",simrep))
+    dir.create(savepath,recursive=TRUE)
+    print("running ALRA")
+    set.seed(simrep)
+    
+    logdf0 <- data.frame(
+        iter = as.integer(c(NA)),
+        ldaMeanRhat = as.numeric(c(NA)),
+        scrabbleLoss = as.numeric(c(NA)),
+        converged=as.integer(c(1)),
+        status=c("converged"),
+        wallclock=as.numeric(c(0)))
+
+    Start=Sys.time()
+    impresult=run_alra(
+        path=savepath,
+        scdata=C,
+        imputebenchmark = trueC)
+    End=Sys.time()
+    Start_POSIX = as.POSIXct(as.numeric(Start), origin="1970-01-01")
+    End_POSIX = as.POSIXct(as.numeric(End), origin="1970-01-01")
+    totaltime = difftime(End_POSIX,Start_POSIX,units="mins")
+
+    # save cluster metrics
+    logdf <- data.frame(
+        iter = as.integer(c(NA)),
+        ldaMeanRhat = as.numeric(c(NA)),
+        scrabbleLoss = as.numeric(c(NA)),
+        converged=as.integer(c(1)),
+        status=c("converged"),
+        wallclock=as.numeric(c(totaltime)))
+    write.csv(rbind(logdf0,logdf),file.path(savepath,paste0(imethod,"_logdf.csv")))
+    run_cluster_plots(imputedC=impresult,pdataC=pDataC,trueC=trueC,savepath=file.path(savepath,"cluster_plots"))
+    write.csv(pDataC,file.path(savepath,"pDataC.csv"))
+}else if(imethod=="CMFImpute"){
+    savepath = file.path(datapath,paste0("imputemodel_",imethod,",simrep_",simrep))
+    dir.create(savepath,recursive=TRUE)
+    print("running CMF-Impute")
+    set.seed(simrep)
+    
+    logdf0 <- data.frame(
+        iter = as.integer(c(NA)),
+        ldaMeanRhat = as.numeric(c(NA)),
+        scrabbleLoss = as.numeric(c(NA)),
+        converged=as.integer(c(1)),
+        status=c("converged"),
+        wallclock=as.numeric(c(0)))
+
+    Start=Sys.time()
+    impresult=run_cmfimpute(
+        path=savepath,
+        scdata=fn_C,
+        imputebenchmark=trueC,
+        lib=cmfimpute_fn)
+
+    End=Sys.time()
+    Start_POSIX = as.POSIXct(as.numeric(Start), origin="1970-01-01")
+    End_POSIX = as.POSIXct(as.numeric(End), origin="1970-01-01")
+    totaltime = difftime(End_POSIX,Start_POSIX,units="mins")
+
+    # save cluster metrics
+    logdf <- data.frame(
+        iter = as.integer(c(NA)),
+        ldaMeanRhat = as.numeric(c(NA)),
+        scrabbleLoss = as.numeric(c(NA)),
+        converged=as.integer(c(1)),
+        status=c("converged"),
+        wallclock=as.numeric(c(totaltime)))
+    write.csv(rbind(logdf0,logdf),file.path(savepath,paste0(imethod,"_logdf.csv")))
+    run_cluster_plots(imputedC=impresult,pdataC=pDataC,trueC=trueC,savepath=file.path(savepath,"cluster_plots"))
+    write.csv(pDataC,file.path(savepath,"pDataC.csv"))
+}else if(imethod=="G2S3"){
+    savepath = file.path(datapath,paste0("imputemodel_",imethod,",simrep_",simrep))
+    dir.create(savepath,recursive=TRUE)
+    print("running G2S3")
+    set.seed(simrep)
+    
+    logdf0 <- data.frame(
+        iter = as.integer(c(NA)),
+        ldaMeanRhat = as.numeric(c(NA)),
+        scrabbleLoss = as.numeric(c(NA)),
+        converged=as.integer(c(1)),
+        status=c("converged"),
+        wallclock=as.numeric(c(0)))
+
+    Start=Sys.time()
+    impresult=run_g2s3(
+        path=savepath,
+        scdata=fn_C,
+        imputebenchmark=trueC,
+        lib=cmfimpute_fn)
+
+    End=Sys.time()
+    Start_POSIX = as.POSIXct(as.numeric(Start), origin="1970-01-01")
+    End_POSIX = as.POSIXct(as.numeric(End), origin="1970-01-01")
+    totaltime = difftime(End_POSIX,Start_POSIX,units="mins")
+
+    # save cluster metrics
+    logdf <- data.frame(
+        iter = as.integer(c(NA)),
+        ldaMeanRhat = as.numeric(c(NA)),
+        scrabbleLoss = as.numeric(c(NA)),
+        converged=as.integer(c(1)),
+        status=c("converged"),
+        wallclock=as.numeric(c(totaltime)))
+    write.csv(rbind(logdf0,logdf),file.path(savepath,paste0(imethod,"_logdf.csv")))
     run_cluster_plots(imputedC=impresult,pdataC=pDataC,trueC=trueC,savepath=file.path(savepath,"cluster_plots"))
     write.csv(pDataC,file.path(savepath,"pDataC.csv"))
 }
