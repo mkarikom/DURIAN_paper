@@ -52,3 +52,4 @@ workspace.code-workspace
 ._.DS_Store*
 .DS_Store*
 dev/
+._*
