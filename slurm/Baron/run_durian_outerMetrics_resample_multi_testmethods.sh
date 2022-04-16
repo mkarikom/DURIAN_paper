@@ -8,7 +8,7 @@ nsleepsim=30 # amount of time to sleep after generating sc simulation (prevent p
 nsleepfit=5 # amount of time to sleep in between steps that seem to miss key environment vars
 nsleeploop=5 # how long to sleep between loop iterations
 dsname=Baron
-suffix=OuterMetricsResampleShort
+suffix=OuterMetricsResampleTest
 prefix=$dsname
 SLURMACCT=qnie_lab
 
@@ -53,6 +53,7 @@ module load MATLAB/R2020b
 export ETCLIB=$BASEDIR/scrabble_helper_functions/library_other_methods.R
 export SIGNALINGLIB=$BASEDIR/scrabble_helper_functions/library_signaling.R
 export MULTISETLIB=$BASEDIR/scrabble_helper_functions/library_signaling_multiset.R
+export ALRALIB=$PROJECTDIR/ALRA/alra.R
 
 # save all the enviroment stuff to the project dir
 pip freeze > $PROJECTDIR/requirements.req
