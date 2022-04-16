@@ -54,6 +54,8 @@ export ETCLIB=$BASEDIR/scrabble_helper_functions/library_other_methods.R
 export SIGNALINGLIB=$BASEDIR/scrabble_helper_functions/library_signaling.R
 export MULTISETLIB=$BASEDIR/scrabble_helper_functions/library_signaling_multiset.R
 export ALRALIB=$PROJECTDIR/ALRA/alra.R
+export G2S3LIB=$PROJECTDIR/G2S3/run_G2S3.m
+export CMFLIB=$PROJECTDIR/CMFImpute/analysis.m
 
 # save all the enviroment stuff to the project dir
 pip freeze > $PROJECTDIR/requirements.req
