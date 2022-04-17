@@ -435,7 +435,7 @@ if(imethod=="dropout"){
         path=savepath,
         scdata=fn_C,
         imputebenchmark=trueC,
-        lib=cmfimpute_fn)
+        lib=g2s3_fn)
 
     End=Sys.time()
     Start_POSIX = as.POSIXct(as.numeric(Start), origin="1970-01-01")
