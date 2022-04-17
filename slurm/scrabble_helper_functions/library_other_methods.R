@@ -329,7 +329,7 @@ run_g2s3 <- function(
   system(paste0('matlab -nodesktop -nodisplay -nosplash -r "run(',myfile,');exit;"'))
   system(paste0('matlab -nodesktop -nodisplay -nosplash -r "run(',myfile,');exit;"'))
 
-  exdata = read.csv(paste0(path,"/imputed.csv"))
+  exdata = t(read.csv(paste0(path,"/imputed.csv"),header=FALSE))
   cellids = read.csv(paste0(path,"/cellids.csv"))
   geneids = read.csv(paste0(path,"/geneids.csv"))
   colnames(exdata) = cellids$cellID
@@ -375,5 +375,5 @@ run_g2s3 <- function(
     dropout_rate=c(dropout_rate_orig)),file.path(path,"imputation_loss.csv"))
   }
 
-  return(as.data.frame(exdata))  
+  return(as.data.frame(exdata))
 }
