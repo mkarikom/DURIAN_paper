@@ -264,7 +264,7 @@ run_cmfimpute <- function(
   myfile = paste0("\'",lib,"\'")
   system(paste0('matlab -nodesktop -nodisplay -nosplash -r "run(',myfile,');exit;"'))
 
-  exdata = read.csv(paste0(path,"/imputed.csv"))
+  exdata = t(read.csv(paste0(path,"/imputed.csv"),header=FALSE))
   cellids = read.csv(paste0(path,"/cellids.csv"))
   geneids = read.csv(paste0(path,"/geneids.csv"))
   colnames(exdata) = cellids$cellID
