@@ -14,5 +14,5 @@ X = max(10.^score1-1,0);
 
 writetable(cell2table(M.Properties.VariableNames','VariableNames',{'cellID'}),strcat(savepath,'/cellids.csv'));
 writematrix(X,strcat(savepath,'/imputed.csv'));
-genetable = cell2table(M.Properties.RowNames','VariableNames',{'geneID'})
+genetable = cell2table(M.Properties.RowNames,'VariableNames',{'geneID'});
 writetable(genetable,strcat(savepath,'/geneids.csv'));
