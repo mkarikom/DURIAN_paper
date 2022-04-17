@@ -310,7 +310,7 @@ run_cmfimpute <- function(
     dropout_rate=c(dropout_rate_orig)),file.path(path,"imputation_loss.csv"))
   }
 
-  return(as.data.frame(exdata))  
+  return(as.data.frame(exdata))
 }
 
 ######## G2S3 ##############

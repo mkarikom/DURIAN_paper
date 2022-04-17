@@ -39,11 +39,6 @@ logratio_plot <- function(
 umap_plot <- function(dat,meta,plottitle,col="cellType",ptsize=5){
   umap <- umap(t(dat))
 
-#   df <- data.frame(x = umap$layout[,1],
-#                     y = umap$layout[,2],
-#                     cellType = as.factor(meta[colnames(dat),"cellType"]),
-#                     sampleID = as.factor(meta[colnames(dat),"sampleID"]))
-
     df = cbind(umap$layout,meta)
     colnames(df)=c("u1","u2",colnames(meta))
 
@@ -63,10 +58,8 @@ umap_plot <- function(dat,meta,plottitle,col="cellType",ptsize=5){
 umap_alpha_plot <- function(dat,meta,plottitle,col="cellType",inverted=FALSE,ptsize=5){
   umap <- umap(t(dat))
 
-
     df = cbind(umap$layout,meta)
     colnames(df)=c("u1","u2",colnames(meta))
-
 
     if(inverted){
         p = ggplot(df, aes(u1, u2, colour = get(col),alpha=1/get(col))) +
@@ -98,10 +91,8 @@ umap_alpha_plot <- function(dat,meta,plottitle,col="cellType",inverted=FALSE,pts
 umap_viridis_plot <- function(dat,meta,plottitle,col="cellType",inverted=FALSE,ptsize=5){
   umap <- umap(t(dat))
 
-
     df = cbind(umap$layout,meta)
     colnames(df)=c("u1","u2",colnames(meta))
-
 
     if(inverted){
         p = ggplot(df, aes(u1, u2, colour = get(col))) +
@@ -135,16 +126,10 @@ umap_viridis_plot <- function(dat,meta,plottitle,col="cellType",inverted=FALSE,p
 
 tsne_plot <- function(dat,meta,plottitle,col="cellType",ptsize=5){
     
-    # browser()
     rownames(meta) = meta$cellID
 
     perplexity = max(1,floor((ncol(dat) - 1) /3))
     tsne <- Rtsne::Rtsne(t(dat),perplexity=perplexity,check_duplicates=FALSE)
-
-    # df <- data.frame(x = tsne$Y[,1],
-    #                 y = tsne$Y[,2],
-    #                 cellType = as.factor(meta[colnames(dat),"cellType"]),
-    #                 sampleID = as.factor(meta[colnames(dat),"sampleID"]))
 
     df = cbind(tsne$Y,meta)
     colnames(df)=c("t1","t2",colnames(meta))

@@ -400,6 +400,9 @@ if(imethod=="dropout"){
         imputebenchmark=trueC,
         lib=cmfimpute_fn)
 
+    print(paste0("impresult (",nrow(impresult),",",ncol(impresult),") class:",class(impresult)))
+    print(impresult[1:5,1:5])
+
     End=Sys.time()
     Start_POSIX = as.POSIXct(as.numeric(Start), origin="1970-01-01")
     End_POSIX = as.POSIXct(as.numeric(End), origin="1970-01-01")
