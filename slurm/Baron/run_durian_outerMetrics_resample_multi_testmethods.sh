@@ -8,7 +8,7 @@ nsleepsim=30 # amount of time to sleep after generating sc simulation (prevent p
 nsleepfit=5 # amount of time to sleep in between steps that seem to miss key environment vars
 nsleeploop=5 # how long to sleep between loop iterations
 dsname=Baron
-suffix=OuterMetricsResampleTest
+suffix=OuterMetricsResampleTest2
 prefix=$dsname
 SLURMACCT=qnie_lab
 
