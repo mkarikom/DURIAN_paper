@@ -150,6 +150,7 @@ tsne_plot <- function(dat,meta,plottitle,col="cellType",ptsize=5){
 run_cluster_plots <- function(imputedC,pdataC,savepath,trueC=NULL){
     dir.create(savepath,recursive=TRUE)
     if(!is.null(trueC)){
+        print("trueC detectect")
         mergeC = trueC
         mergeC[rownames(imputedC),colnames(imputedC)] = imputedC
         p_lr=logratio_plot(imputedC=mergeC,pDataC=pDataC,trueC=trueC,plottitle="MA Plot")
@@ -168,6 +169,7 @@ run_cluster_plots <- function(imputedC,pdataC,savepath,trueC=NULL){
         ggsave(plot=p_umap_control,filename=file.path(savepath,"umap_control.pdf"),width=5,height=5)
         ggsave(plot=p_tsne_control,filename=file.path(savepath,"tsne_control.pdf"),width=5,height=5)
     }else{
+        print("trueC not detectect")
         p_umap=umap_plot(dat=imputedC,meta=pDataC,plottitle="UMAP Plot",ptsize=2)
         p_tsne=tsne_plot(dat=imputedC,meta=pDataC,plottitle="tSNE Plot",col="sampleID",ptsize=2)
 
