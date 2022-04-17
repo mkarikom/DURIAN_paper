@@ -149,8 +149,15 @@ tsne_plot <- function(dat,meta,plottitle,col="cellType",ptsize=5){
 
 run_cluster_plots <- function(imputedC,pdataC,savepath,trueC=NULL){
     dir.create(savepath,recursive=TRUE)
+
+    print(paste0("imputedC (",nrow(imputedC),",",ncol(imputedC),") class:",class(imputedC)))
+    print(imputedC[1:5,1:5])
+
+    print(paste0("pDataC (",nrow(pDataC),",",ncol(pDataC),") class:",class(pDataC)))
+    print(pDataC[1:5,])
+
     if(!is.null(trueC)){
-        print("trueC detectect")
+        print("trueC detected")
         mergeC = trueC
         mergeC[rownames(imputedC),colnames(imputedC)] = imputedC
         p_lr=logratio_plot(imputedC=mergeC,pDataC=pDataC,trueC=trueC,plottitle="MA Plot")
