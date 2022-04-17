@@ -384,6 +384,9 @@ if(imethod=="dropout"){
     dir.create(savepath,recursive=TRUE)
     print("running CMF-Impute")
     set.seed(simrep)
+
+    fn_C = paste0(savepath,"/.C.csv")
+    write.csv(C,fn_C)
     
     logdf0 <- data.frame(
         iter = as.integer(c(NA)),
@@ -424,6 +427,9 @@ if(imethod=="dropout"){
     dir.create(savepath,recursive=TRUE)
     print("running G2S3")
     set.seed(simrep)
+
+    fn_C = paste0(savepath,"/.C.csv")
+    write.csv(C,fn_C)
     
     logdf0 <- data.frame(
         iter = as.integer(c(NA)),
