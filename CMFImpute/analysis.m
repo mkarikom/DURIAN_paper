@@ -5,6 +5,9 @@ addpath(genpath(libpath))
 datapath = getenv('MYDATA')
 savepath = getenv('MYSAVEPATH')
 
+fprintf('path is:\n')
+fprintf(path)
+
 %load data
 M = readtable(datapath,'Delimiter',',','ReadRowNames',true,'ReadVariableNames',true);% M is raw data in table form, rows are genes and columns are cells.
 M0 = table2array(M); % data matrix
