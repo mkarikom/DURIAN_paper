@@ -114,11 +114,16 @@ export RUNSTABILITY=FALSE
 SCPARAMS=( "1,1e-6,1e-4" "1e-2,1e-5,1e-5" )
 DPARAMS=( "1,1e-6,1e-4" "1e-2,1e-5,1e-5" )
 
+######################################################################################
+# DELETE
+######################################################################################
+DROPOUTMIDS=( "0:0:0:0:6.5:6.5:6.5:6.5" )
+SCPARAMS=( "1,1e-6,1e-4" )
+DPARAMS=( "1,1e-6,1e-4" )
 
 declare -a ALLDEPENDS=''
 
 echo starting run
-
 
 for dropMids in "${DROPOUTMIDS[@]}"; do
 
