@@ -85,33 +85,45 @@ print(paste0("exists truec=",file.exists(fn_trueC)))
 print(paste0("exists truep=",file.exists(fn_trueP)))
 
 if(file.exists(fn_trueC)){
-    print("case 1")
+    print("case 1: with ground truth, with prefix")
     C = read.csv(fn_C,row.names=1)
     T = read.csv(fn_T,row.names=1)
     pDataC = read.csv(fn_pDataC,row.names=1)
     trueC = read.csv(fn_trueC,row.names=1)
     trueP = read.csv(fn_trueP,row.names=1)
 }else if(file.exists(file.path(sourcepath,"trueC.csv"))){
-    print("case 2")
+    print("case 2: with ground truth, no prefix")
     C = read.csv(file.path(sourcepath,"C.csv"),row.names=1)
     T = read.csv(file.path(sourcepath,"T.csv"),row.names=1)
     pDataC = read.csv(file.path(sourcepath,"pDataC.csv"),row.names=1)
     trueC = read.csv(file.path(sourcepath,"trueC.csv"),row.names=1)
     trueP = read.csv(file.path(sourcepath,"trueP.csv"),row.names=1)
+    
+    # remove prefix
+    fn_T = file.path(sourcepath,"T.csv")
+    fn_pDataC = file.path(sourcepath,"pDataC.csv")
+    fn_C = file.path(sourcepath,"C.csv")
+    fn_trueC = file.path(sourcepath,"trueC.csv")
+    fn_trueP = file.path(sourcepath,"trueP.csv")
 }else if(file.exists(fn_C)){
-    print("case 3")
+    print("case 3: no ground truth, with prefix")
     C = read.csv(fn_C,row.names=1)
     T = read.csv(fn_T,row.names=1)
     pDataC = read.csv(fn_pDataC,row.names=1)
     trueC = NULL
     trueP = NULL
 }else if(file.exists(file.path(sourcepath,"C.csv"))){
-    print("case 4")
+    print("case 4: no ground truth, no prefix")
     C = read.csv(file.path(sourcepath,"C.csv"),row.names=1)
     T = read.csv(file.path(sourcepath,"T.csv"),row.names=1)
     pDataC = read.csv(file.path(sourcepath,"pDataC.csv"),row.names=1)
     trueC = NULL
     trueP = NULL
+    
+    # remove prefix
+    fn_T = file.path(sourcepath,"T.csv")
+    fn_pDataC = file.path(sourcepath,"pDataC.csv")
+    fn_C = file.path(sourcepath,"C.csv")
 }
 
 #### subsample the data
