@@ -153,7 +153,7 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                 ######################################################################################
 
 
-                IMPUTE_METHODS=( DrImpute dropout )
+                IMPUTE_METHODS=( DrImpute dropout ALRA G2S3 CMFImpute )
                 SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task.sub
                 export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods.R
                 export nCoresAvail=$NCPUS # this is the number of workers we want

@@ -15,7 +15,7 @@ SLURMACCT=qnie_lab
 export EMDIAG=FALSE
 export SLURMPARTITION=free
 # export slurmtimelimit=3-00:00:00
-export slurmtimelimit=0-00:30:00
+export slurmtimelimit=0-03:00:00
 export PROJECTDIR=/dfs6/pub/mkarikom/code/DURIAN_paper_clean
 export BASEDIR=$PROJECTDIR/slurm
 export OUTPUTMASTER=$BASEDIR/${dsname}/output.clusterMetrics.$SLURMPARTITION.$suffix
@@ -23,7 +23,7 @@ export NBULK=10
 MEMP=10000M # memory in mb, try increasing if nodes are not avail
 export NCPUS=$((NBULK+1))
 # export MAXREP=20
-export MAXREP=3
+export MAXREP=50
 export SUBTARGETSIZE=500 # 500
 export SUBMINCELLS=10 # 10
 export SUBGENERATE=0.01 # 0.01
@@ -50,8 +50,7 @@ module load R/4.0.4
 module load python/2.7.17 # needed for ursm, pypolyagamma
 
 export ETCLIB=$BASEDIR/scrabble_helper_functions/library_other_methods.R
-export SIGNALINGLIB=$BASEDIR/scrabble_helper_functions/library_signaling.R
-export MULTISETLIB=$BASEDIR/scrabble_helper_functions/library_signaling_multiset.R
+
 
 # save all the enviroment stuff to the project dir
 pip freeze > $PROJECTDIR/requirements.req
@@ -127,7 +126,7 @@ for SIMREP in $(seq 1 $MAXREP); do
                         ######################################################################################
 
                         SBATCHSUB=$BASEDIR/application_scripts/run_durian.sub
-                        IMPUTE_METHODS=( DrImpute dropout )
+                        IMPUTE_METHODS=( DrImpute dropout ALRA G2S3 CMFImpute )
                         export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods_subsample.R
 
                         for IMPUTE_METHOD in "${IMPUTE_METHODS[@]}"; do
@@ -271,6 +270,7 @@ for SIMREP in $(seq 1 $MAXREP); do
                                 --job-name=$SBATCHJOBNAME \
                                 --error=$SBATCHERRDIR/err_%x_%A_%a.log \
                                 --out=$SBATCHOUTDIR/out_%x_%A_%a.log \
+                                --wait \
                                 $SBATCHSUB | cut -f 4 -d' ')
                                 NONURSMDEPENDS+=":${sbatchid}"
                                 MULTISETDEPENDS+=":${sbatchid}"
