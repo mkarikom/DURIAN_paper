@@ -1,9 +1,10 @@
-% This is a demo showing how to running CMF-Impute using the uso
-%clear;clc
 libpath = getenv('CMFLIB')
-addpath(genpath(libpath))
 datapath = getenv('MYDATA')
 savepath = getenv('MYSAVEPATH')
+
+parts = strsplit(libpath, filesep);
+parent_path = strjoin(parts(1:end-1), filesep);
+addpath(genpath(parent_path))
 
 fprintf('path is:\n')
 fprintf(path)
