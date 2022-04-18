@@ -6,8 +6,8 @@ parts = strsplit(libpath, filesep);
 parent_path = strjoin(parts(1:end-1), filesep);
 addpath(genpath(parent_path))
 
-fprintf('path is:\n')
-fprintf(path)
+// fprintf('path is:\n')
+// fprintf(path)
 
 init_unlocbox();
 gsp_start;addpath(".");
