@@ -6,9 +6,6 @@ parts = strsplit(libpath, filesep);
 parent_path = strjoin(parts(1:end-1), filesep);
 addpath(genpath(parent_path))
 
-// fprintf('path is:\n')
-// fprintf(path)
-
 init_unlocbox();
 gsp_start;addpath(".");
 M = readtable(datapath,'Delimiter',',','ReadRowNames',true,'ReadVariableNames',true);% M is raw data in table form, rows are genes and columns are cells.
