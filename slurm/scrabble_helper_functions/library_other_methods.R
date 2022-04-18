@@ -53,7 +53,8 @@ run_drimpute <- function(
     
   # impute the data using DrImpute  
   exdata <- DrImpute::DrImpute(Matrix::Matrix(as.matrix(scdata)))
-  
+  colnames(exdata) = colnames(scdata)
+
   # write the data
   write.csv(exdata,file.path(path, "imputed_C.csv"))
 

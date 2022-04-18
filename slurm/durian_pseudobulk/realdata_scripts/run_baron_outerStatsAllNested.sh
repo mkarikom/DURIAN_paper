@@ -46,6 +46,7 @@ module load mkl
 module load julia/1.6.0
 module load R/4.0.4
 module load python/2.7.17 # needed for ursm, pypolyagamma
+module load MATLAB/R2020b
 
 export ETCLIB=$BASEDIR/scrabble_helper_functions/library_other_methods.R
 export ALRALIB=$PROJECTDIR/ALRA/alra.R
