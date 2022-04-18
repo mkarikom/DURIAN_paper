@@ -1,5 +1,3 @@
-origPath = pwd;
-
 libpath = getenv('G2S3LIB')
 addpath(genpath(libpath))
 datapath = getenv('MYDATA')

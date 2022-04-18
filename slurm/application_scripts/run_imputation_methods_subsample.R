@@ -385,9 +385,9 @@ if(imethod=="dropout"){
     print("running CMF-Impute")
     set.seed(simrep)
 
-    fn_C = paste0(savepath,"/.C.csv")
+    fn_C = paste0(savepath,"/C.csv")
     write.csv(C,fn_C)
-    
+
     logdf0 <- data.frame(
         iter = as.integer(c(NA)),
         ldaMeanRhat = as.numeric(c(NA)),
@@ -428,9 +428,9 @@ if(imethod=="dropout"){
     print("running G2S3")
     set.seed(simrep)
 
-    fn_C = paste0(savepath,"/.C.csv")
+    fn_C = paste0(savepath,"/C.csv")
     write.csv(C,fn_C)
-    
+
     logdf0 <- data.frame(
         iter = as.integer(c(NA)),
         ldaMeanRhat = as.numeric(c(NA)),
