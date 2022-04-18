@@ -207,6 +207,8 @@ run_alra <- function(
   A_norm <- normalize_data(t(scdata))
   k_choice <- choose_k(A_norm)
   exdata <- Matrix::Matrix(t(alra(A_norm,k=k_choice$k)[[3]]))
+  rownames(exdata) = rownames(scdata)
+  colnames(exdata) = colnames(scdata)
 
   # write the data
   write.csv(exdata,file.path(path, "imputed_C.csv"))
@@ -274,6 +276,9 @@ run_cmfimpute <- function(
   # write the data
   write.csv(exdata,file.path(path, "imputed_C.csv"))
 
+  # read the raw data as object
+  scdata = read.csv(scdata)
+
   if(!is.null(imputebenchmark)){
     com_genes = sort(intersect(rownames(imputebenchmark),rownames(scdata)))
     com_cells = sort(intersect(colnames(imputebenchmark),colnames(scdata)))
@@ -336,6 +341,9 @@ run_g2s3 <- function(
 
   # write the data
   write.csv(exdata,file.path(path, "imputed_C.csv"))
+
+  # read the raw data as object
+  scdata = read.csv(scdata)
 
   if(!is.null(imputebenchmark)){
     com_genes = sort(intersect(rownames(imputebenchmark),rownames(scdata)))
