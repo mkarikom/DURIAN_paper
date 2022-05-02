@@ -56,3 +56,4 @@ dev/
 durian_data/
 sc_data/
 output/
+salmon_output_sbatch/
