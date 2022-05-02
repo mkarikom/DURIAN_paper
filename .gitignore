@@ -59,3 +59,6 @@ durian_data/
 sc_data/
 output/
 salmon_output_sbatch/
+raw_data/
+*.tex
+Manifest.toml
