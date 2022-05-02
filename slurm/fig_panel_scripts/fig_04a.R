@@ -8,7 +8,6 @@
 
 source("slurm/scrabble_helper_functions/library_cluster_metrics.R")
 source("slurm/scrabble_helper_functions/library_extra_plots.R")
-source("slurm/scrabble_helper_functions/library_scrabble_clusterMetrics_clValid.R")
 
 library(dplyr)
 library(rmcorr)
@@ -40,14 +39,12 @@ dir.create(outputdir,recursive=TRUE)
 cmetrics = c("within.cluster.ss","avg.silwidth","pearsongamma","dunn","dunn2","entropy","wb.ratio","ch","widestgap","sindex","sparsity")
 
 backupdirscombine = c(
-  "slurm/Baron/output.clusterMetrics.free.OuterMetricsResampleShort",
-  "slurm/Baron/output.clusterMetrics.free.OuterMetricsResample",
-  "slurm/Gupta/output.clusterMetrics.free.OuterMetricsResample",
-  "slurm/Gupta/output.clusterMetrics.free.OuterMetricsResampleShort",
-  "slurm/He/output.clusterMetrics.free.OuterMetricsResample",
-  "slurm/He/output.clusterMetrics.free.OuterMetricsResampleShort")
+  "/share/crsp/lab/cellfate/mkarikom/DURIAN_paper_clean/slurm/Baron/output.clusterMetrics.highmem.Resample",
+  "/share/crsp/lab/cellfate/mkarikom/DURIAN_paper_clean/slurm/Gupta/output.clusterMetrics.highmem.Resample",
+  "/share/crsp/lab/cellfate/mkarikom/DURIAN_paper_clean/slurm/He/output.clusterMetrics.highmem.Resample1to5",
+  "/share/crsp/lab/cellfate/mkarikom/DURIAN_paper_clean/slurm/Park/output.clusterMetrics.highmem.Resample")
 
-sourcepaths = c("slurm/Baron/durian_data","slurm/Gupta/durian_data","slurm/He/durian_data")
+sourcepaths = c("slurm/Baron/durian_data","slurm/Gupta/durian_data","slurm/He/durian_data","slurm/Park/durian_data")
 
 df.orig = NULL # the dataframe of all output, to be filled
 df.orig.final = NULL
@@ -219,9 +216,6 @@ write.csv(df.orig,file.path(outputdir,"df.orig.csv"))
 write.csv(df.orig.final,file.path(outputdir,"df.orig.final.csv"))
 write.csv(df.orig.converged,file.path(outputdir,"df.orig.converged.csv"))
 
-browser()
-
-
 finalstats = c("diameter","average.distance","median.distance","separation","average.toother","clus.avg.silwidths","cwidegap","separation.matrix","ave.between.matrix")
 cmetrics = c("within.cluster.ss","avg.silwidth","pearsongamma","dunn","dunn2","entropy","wb.ratio","ch","widestgap","sindex","sparsity")
 
@@ -233,26 +227,32 @@ df.orig.converged.remelt = reshape2::melt(df.orig.converged.unmelt,measure.vars=
 renames = colnames(df.orig.converged.remelt[!names(df.orig.converged.remelt) %in% c("value", "variable")])
 df.converged = rbind(df.orig.converged[c(renames,"value","variable")],df.orig.converged.remelt)%>% distinct(.keep_all = TRUE)
 
-
-
-
 tissuetype = c()
 status = c()
 for(i in 1:nrow(df.converged)){
-  if(df.converged$dataset[i]=="BaronSC.DM.isletVST;SegerstolpeBulk"){
+  if(df.converged$dataset[i]=="BaronSC.DM.isletVST1K05;SegerstolpeBulk"){
     tissuetype[i] = "Pancreas"
     status[i] = "Diabetic"
-  }else if(df.converged$dataset[i]=="BaronSC.H.isletVST;SegerstolpeBulk"){
+  }else if(df.converged$dataset[i]=="BaronSC.H.isletVST1K05;SegerstolpeBulk"){
     tissuetype[i] = "Pancreas"
     status[i] = "Healthy"
   }else if(df.converged$dataset[i]=="GuptaE13SC.VST;BiggsBulk.VST"){
     tissuetype[i] = "Skin"
     status[i] = "Embryo"
-  }else if(df.converged$dataset[i]=="HeLS.sense0.1"){
+  }else if(df.converged$dataset[i]=="HeLS.sense0.1;SuarezLS"){
+    tissuetype[i] = "Skin-Integrated"
+    status[i] = "Eczema"
+  }else if(df.converged$dataset[i]=="HeNL.sense0.1;SuarezNL"){
+    tissuetype[i] = "Skin-Integrated"
+    status[i] = "Healthy"
+  }else if(df.converged$dataset[i]=="HeLS.VST;SuarezLS.VST"){
     tissuetype[i] = "Skin"
     status[i] = "Eczema"
-  }else if(df.converged$dataset[i]=="HeNL.sense0.1"){
+  }else if(df.converged$dataset[i]=="HeNL.VST;SuarezNL.VST"){
     tissuetype[i] = "Skin"
+    status[i] = "Healthy"
+  }else if(df.converged$dataset[i]=="ParkWT.VST1K05;Beckerman.VST1K05"){
+    tissuetype[i] = "Kidney"
     status[i] = "Healthy"
   }
 }
@@ -260,14 +260,9 @@ for(i in 1:nrow(df.converged)){
 df.converged$tissuetype = tissuetype
 df.converged$status = status
 
-# write.csv(df.converged,file=gzfile(file.path(outputdir,"df.converged.csv.gz")))
+write.csv(df.converged,file=gzfile(file.path(outputdir,"df.converged.status.csv.gz")))
 outputdir = file.path("slurm","fig_panel_scripts","fig04","alldata")
-df.converged = read.csv(file=gzfile(file.path(outputdir,"df.converged.csv.gz")))
-
-library(ggplot2)
-library(ggpubr)
-library(ggh4x)
-library(dplyr)
+df.converged = read.csv(file=gzfile(file.path(outputdir,"df.converged.status.csv.gz")),row.names=1)
 
 stats.use = c("cwidegap","diameter","dunn","sindex","within.cluster.ss")
 dir.create(file.path(outputdir,"box_allvars"))
@@ -277,11 +272,11 @@ p = ggplot(
   data=df.converged%>%filter(variable %in% stats.use),
   aes(modelname,log(value),color=imputemodel))+
   geom_boxplot()+
-facet_nested(variable ~ tissuetype + status,scales="free")+
+  facet_nested(variable ~ tissuetype + status,scales="free")+
     theme_bw() +
-        rotate_x_text(30) +
+        rotate_x_text(45) +
             labs(color="Model Family",y="log(metric)") +
-    theme(axis.text=element_text(size=5,face="bold"),
+    theme(axis.text=element_text(size=4,face="bold"),
       axis.title.y=element_text(size=10,face="bold"),
       axis.title.x=element_blank(),
       # legend.position = "none",
@@ -296,4 +291,4 @@ facet_nested(variable ~ tissuetype + status,scales="free")+
       panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
       panel.spacing=unit(0,"lines"))
-      ggsave(plot=p,file=fn,width=6.5,height=6.5)
+ggsave(plot=p,file=fn,width=10.5,height=6.5)

@@ -18,13 +18,13 @@ library(ggh4x)
 library(scales)
 library(umap)
 library(viridis)
+library(jcolors)
 
 excludemodels = c()
 quicksims = c(1:5)
 quickdparams = c("0:0:0:0:6.5:6.5:6.5:6.5",1e-6)
-umap_min_dist = 0.7
-
-outputdir = file.path("slurm","fig_panel_scripts","fig03_ma")
+umap_min_dist = 0.9
+outputdir = file.path("slurm","fig_panel_scripts","fig_02c")
 dir.create(outputdir,recursive=TRUE)
 
 # saved benchmark directory
@@ -32,7 +32,7 @@ dir.create(outputdir,recursive=TRUE)
 # outputdir = "slurm/durian_pseudobulk_OuterStats_clValid/output.final.splatter,n_5,output_summaryCombineParam"
 # sparsityparam = "dmid"
 
-backupdircombine = "slurm/durian_pseudobulk_BaronOuterStatsAllNested_clValidInternal/output.final.baron,n_5"
+backupdircombine = "slurm/durian_pseudobulk/output/durian_pseudobulk_DownsampPB/output.final.baron,n_50"
 sparsityparam = "lambda"
 sparsityvar = "λ"
 
@@ -56,6 +56,8 @@ for(ii in 1:length(dirnamescombine)){
           droprate_backup = read.csv(file.path(backupdir,dirnames[i],modeldirs[ind_dropmodel],"imputation_loss.csv"),row.names=1)$Dropout
           dropoutC = read.csv(file.path(backupdir,dirnames[i],modeldirs[ind_dropmodel],"imputed_C.csv"),row.names=1)
           trueC = read.csv(file.path(backupdir,dirnames[i],"trueC.csv"),row.names=1)
+          umap_res <- umap(t(trueC),min_dist=umap_min_dist)
+          tsne <- Rtsne::Rtsne(t(trueC),check_duplicates=FALSE)
 
           for(j in 1:length(modeldirs)){
             if(length(grep("imputemodel",modeldirs[j]))>0){
@@ -72,32 +74,23 @@ for(ii in 1:length(dirnamescombine)){
                 pDataC = read.csv(file.path(backupdir,dirnames[i],"pDataC.csv"),row.names=1)
                 pDataC = cbind(pDataC,as.data.frame(normDiffC))
 
-                ylims=c(-7,7)
-                mthresh=c(-2,2)
+                print("creating umap")
+                df_umap = cbind(umap_res$layout,pDataC)
+                colnames(df_umap)=c("U1","U2",colnames(pDataC))
+                df_umap$cellid = rownames(df_umap)
+                print("umap created")
 
-                print("filling MA table")
-                A = 0.5*rowMeans(log2(trueC+1) + log2(imputedC+1))
-                # M = rowMeans(log2(trueC+1) - log2(imputedC+1))
-                M = rowMeans(log2(imputedC+1) - log2(trueC+1))
-                mrate = abs(M/ylims[1])
-                plotdf = data.frame(A=A,M=M)
-                inbounds=c()
-                for(iii in 1:length(M)){
-                    if(M[iii] <= mthresh[1]){
-                        inbounds = c(inbounds,"Negative")
-                    }else if(M[iii] >= mthresh[2]){
-                        inbounds = c(inbounds,"Positive")
-                    }else{
-                        inbounds = c(inbounds,"Below threshold")
-                    }
-                }
-                plotdf$inbounds = as.factor(inbounds)
-                plotdf$mrate = mrate
-                
+                df_tsne = cbind(tsne$Y,df_umap)
+                colnames(df_tsne)=c("T1","T2",colnames(df_umap))
+
+
+                df_umap = df_tsne
+
                 print(paste0("found impute model ",logfn))
                 params2 = as.data.frame(get_model_params(modeldirs[j]))
                 dataparams = cbind(params,params2)
                 runlog = read.csv(logfn,row.names=1)
+
                 runlog = cbind(runlog,dataparams)
                 runlog$dropout_rate = droprate_backup
 
@@ -116,10 +109,20 @@ for(ii in 1:length(dirnamescombine)){
                   runlog$modelfam=c("Existing Methods")
                 }
 
-                runlog_ma = cbind(runlog,plotdf)
+                print(paste0("updating df (",class(runlog) ,") with runlog: \n"))
+                print(runlog)
+                print("rownames:")
+                print(rownames(runlog))
+
+                stretchrl = NULL
+                for(rowi in 1:nrow(df_umap)){
+                  stretchrl = rbind(stretchrl,runlog)
+                }
+                # runlog_umap = runlog %>% dplyr::slice(rep(1:n(), each = nrow(df_umap)))
+                runlog_umap = cbind(stretchrl,df_umap)
 
                 print("calling rbind")
-                df.orig = plyr::rbind.fill(df.orig,runlog_ma)
+                df.orig = plyr::rbind.fill(df.orig,runlog_umap)
               }
             }
           }
@@ -140,7 +143,7 @@ df_downsamp$strategy = "Down-Sampling"
 write.csv(df_downsamp,file.path(outputdir,"df_downsamp.csv"))
 
 
-backupdircombine = "slurm/durian_pseudobulk_OuterStats_clValid/output.final.splatter,n_5"
+backupdircombine = "slurm/durian_pseudobulk/output/pseudobulk_SimPBStd,gProb_0.1-0.1-0.5-0.3,deProb_0.3-0.3-0.3-0.3,bLoc_0.1,bScale_0.2,dLoc_0.5,dScale_0.5/output.final.splatter,n_50"
 sparsityparam = "dmid"
 sparsityvar = "x0"
 
@@ -169,8 +172,9 @@ for(ii in 1:length(dirnamescombine)){
           droprate_backup = read.csv(file.path(backupdir,dirnames[i],modeldirs[ind_dropmodel],"imputation_loss.csv"),row.names=1)$Dropout
           dropoutC = read.csv(file.path(backupdir,dirnames[i],modeldirs[ind_dropmodel],"imputed_C.csv"),row.names=1)
           trueC = read.csv(file.path(backupdir,dirnames[i],"trueC.csv"),row.names=1)
+          umap_res <- umap(t(trueC),min_dist=umap_min_dist)
+          tsne <- Rtsne::Rtsne(t(trueC),check_duplicates=FALSE)
           for(j in 1:length(modeldirs)){
-            print(modeldirs[j])
             if(length(grep("imputemodel",modeldirs[j]))>0){
               print(paste0("found impute folder ",modeldirs[j]))
               logfn = file.path(backupdir,dirnames[i],modeldirs[j],"imputation_loss.csv")
@@ -185,32 +189,22 @@ for(ii in 1:length(dirnamescombine)){
                 pDataC = read.csv(file.path(backupdir,dirnames[i],"pDataC.csv"),row.names=1)
                 pDataC = cbind(pDataC,as.data.frame(normDiffC))
 
-                ylims=c(-7,7)
-                mthresh=c(-2,2)
+                print("creating umap")
+                df_umap = cbind(umap_res$layout,pDataC)
+                colnames(df_umap)=c("U1","U2",colnames(pDataC))
+                df_umap$cellid = rownames(df_umap)
+                print("umap created")
 
-                print("filling MA table")
-                A = 0.5*rowMeans(log2(trueC+1) + log2(imputedC+1))
-                # M = rowMeans(log2(trueC+1) - log2(imputedC+1))
-                M = rowMeans(log2(imputedC+1) - log2(trueC+1))
-                mrate = abs(M/ylims[1])
-                plotdf = data.frame(A=A,M=M)
-                inbounds=c()
-                for(iii in 1:length(M)){
-                    if(M[iii] <= mthresh[1]){
-                        inbounds = c(inbounds,"Negative")
-                    }else if(M[iii] >= mthresh[2]){
-                        inbounds = c(inbounds,"Positive")
-                    }else{
-                        inbounds = c(inbounds,"Below threshold")
-                    }
-                }
-                plotdf$inbounds = as.factor(inbounds)
-                plotdf$mrate = mrate
+                df_tsne = cbind(tsne$Y,df_umap)
+                colnames(df_tsne)=c("T1","T2",colnames(df_umap))
+                
+                df_umap = df_tsne
 
                 print(paste0("found impute model ",logfn))
                 params2 = as.data.frame(get_model_params(modeldirs[j]))
                 dataparams = cbind(params,params2)
                 runlog = read.csv(logfn,row.names=1)
+
                 runlog = cbind(runlog,dataparams)
                 runlog$dropout_rate = droprate_backup
 
@@ -229,10 +223,20 @@ for(ii in 1:length(dirnamescombine)){
                   runlog$modelfam=c("Existing Methods")
                 }
 
-                runlog_ma = cbind(runlog,plotdf)
+                print(paste0("updating df (",class(runlog) ,") with runlog: \n"))
+                print(runlog)
+                print("rownames:")
+                print(rownames(runlog))
+
+                stretchrl = NULL
+                for(rowi in 1:nrow(df_umap)){
+                  stretchrl = rbind(stretchrl,runlog)
+                }
+                # runlog_umap = runlog %>% dplyr::slice(rep(1:n(), each = nrow(df_umap)))
+                runlog_umap = cbind(stretchrl,df_umap)
 
                 print("calling rbind")
-                df.orig = plyr::rbind.fill(df.orig,runlog_ma)
+                df.orig = plyr::rbind.fill(df.orig,runlog_umap)
               }
             }
           }
@@ -245,6 +249,7 @@ df.orig$logRMSE = log(df.orig$RMSE)
 df.orig$logENORM = log(df.orig$ENORM)
 
 
+
 df.orig$dropoutlevel = paste0(sparsityvar,"=",unlist(lapply(strsplit(df.orig[,sparsityparam],":"),tail,n=1)))
 df.filter = df.orig %>% filter(!modelname %in% excludemodels)
 df_sim = df.filter %>% group_by(get(sparsityparam)) %>% mutate(mean_dropout = mean(dropout_rate))
@@ -255,6 +260,11 @@ write.csv(df_downsamp,file.path(outputdir,"df_sim.csv"))
 
 df = plyr::rbind.fill(df_sim,df_downsamp)
 
+minalpha = min(1-1/log(df$normDiffC))
+maxalpha = max(1-1/log(df$normDiffC))
+
+df$normalpha = (1-1/log(df$normDiffC) - minalpha) / (maxalpha - minalpha)
+
 df$mean_dropout = round(df$mean_dropout,digits=3)
 nmodels = length(unique(df$modelname))
 palette1 = scales::hue_pal()(nmodels)
@@ -262,26 +272,89 @@ names(palette1) = sort(unique(df$modelname))
 
 write.csv(df,file.path(outputdir,"df.csv"))
 
-df_tmp = df %>% filter(strategy=="Down-Sampling",sA %in% c(1e-2,NA),sim==1)
-p=ggplot(df_tmp %>% sample_n(6000),aes(x=A,y=M,color=inbounds,alpha=mrate))+
-# p=ggplot(df_tmp,aes(x=A,y=M,color=inbounds,alpha=mrate))+
+
+
+unique(df$mean_dropout[df$sA==1 & df$strategy=="Down-Sampling"])
+
+df_tmp = df %>% filter(strategy=="Down-Sampling",lambda==1e-6,sA %in% c(1,NA))
+p = ggplot(df_tmp,aes(x=U1, y=U2,color=1-1/log(normDiffC),alpha=normalpha)) + 
+scale_color_distiller(palette="PuBuGn",direction=1)+
       geom_point(size=0.25)+
-        geom_hline(yintercept=0, linetype="solid",color = "black", size=0.5)+
-        geom_hline(yintercept=2, linetype="dashed",color = "red", size=1)+
-        geom_hline(yintercept=-2, linetype="dashed",color = "blue", size=1)+
-        ylim(ylims)+
-        scale_colour_manual(values = c("grey30","blue", "red"))+
-        theme_bw()+
-        theme(
-            panel.grid.major = element_blank(), 
-            panel.grid.minor = element_blank())+
-        xlab("Average counts")+
-        ylab("Log ratio")+
+      facet_nested(~modelfam + modelname)
+p = p +
+     theme_bw() +
+     labs(alpha="Error Threshold",color="Cell-wise\nError") +
+     rotate_x_text(90) +
+     theme(
+       axis.text=element_text(size=3,face="bold"),
+       axis.title=element_text(size=5,face="bold"),
+       # legend.position = "none",
+       panel.border=element_rect(colour="black",size=0.5,fill=NA),
+       strip.text.x = element_text(size = 5, face = "bold"),
+       strip.text.y = element_text(size = 5, face = "bold"),
+        legend.key.size = unit(5, 'mm'), #change legend key size
+      legend.key.height = unit(4, 'mm'), #change legend key height
+      legend.key.width = unit(4, 'mm'), #change legend key width
+      legend.title = element_text(size=7,face="bold"), #change legend title font size
+      legend.text = element_text(size=5,face="bold"),
+       panel.grid.major = element_blank(),
+       panel.grid.minor = element_blank(),
+       panel.spacing=unit(0,"lines"))
+ggsave(plot=p,file=file.path(outputdir,"facet_scatter_alpha_ds.pdf"),width=7,height=2)
+
+
+unique(df$mean_dropout[df$sA==1 & df$strategy=="Down-Sampling"])
+
+df_tmp = df %>% filter(strategy=="Simulation",mean_dropout==0.929,sA %in% c(1,NA))
+p = ggplot(df_tmp %>% slice_sample(n = 5000),aes(x=U1, y=U2,color=1-1/log(normDiffC),alpha=normalpha)) + 
+scale_color_distiller(palette="PuBuGn",direction=1)+
+      geom_point(size=0.25)+
+      facet_nested(~modelfam + modelname)
+p = p +
+     theme_bw() +
+     labs(alpha="Error Threshold",color="Cell-wise\nError") +
+     rotate_x_text(90) +
+     theme(
+       axis.text=element_text(size=3,face="bold"),
+       axis.title=element_text(size=5,face="bold"),
+       # legend.position = "none",
+       panel.border=element_rect(colour="black",size=0.5,fill=NA),
+       strip.text.x = element_text(size = 5, face = "bold"),
+       strip.text.y = element_text(size = 5, face = "bold"),
+        legend.key.size = unit(5, 'mm'), #change legend key size
+      legend.key.height = unit(4, 'mm'), #change legend key height
+      legend.key.width = unit(4, 'mm'), #change legend key width
+      legend.title = element_text(size=7,face="bold"), #change legend title font size
+      legend.text = element_text(size=5,face="bold"),
+       panel.grid.major = element_blank(),
+       panel.grid.minor = element_blank(),
+       panel.spacing=unit(0,"lines"))
+ggsave(plot=p,file=file.path(outputdir,"facet_scatter_alpha_sim.pdf"),width=7,height=2)
+
+
+logistic_trans <- function(x,l=1,k=1,x0=0){
+  l/(1+exp(-k*(x-x0)))
+}
+
+normalize_trans <- function(x){
+  minx = min(x)
+  maxx = max(x)
+  (x-minx)/(maxx-minx)
+}
+
+df_tmp = df %>% filter(strategy=="Simulation",mean_dropout==0.929,sA %in% c(1,NA))
+df_tmp$normlogistic = normalize_trans(logistic_trans(log(df_tmp$normDiffC),k=1,x0=0,l=1))
+# df_tmp$normlogistic = normalize_trans(logistic_trans(log(df_tmp$normDiffC),k=1,x0=10,l=1))
+df_tmp$normexp = normalize_trans(logistic_trans(log(df_tmp$normDiffC),k=1,x0=10,l=1))
+p = ggplot(df_tmp,aes(x=U1, y=U2,color=normlogistic,alpha=normexp)) + 
+      # geom_point(size=0.25)+
+      geom_point(aes(size=log(normDiffC)))+
       facet_nested(strategy~modelfam + imputemodel)
 p = p +
      theme_bw() +
      rotate_x_text(90) +
-     labs(color="Error Sign") +
+     labs(alpha="Error Threshold",color="Cell-wise\nError") +
+     scale_color_jcolors_contin(palette="pal12")+
      theme(
        axis.text=element_text(size=5,face="bold"),
        axis.title=element_text(size=10,face="bold"),
@@ -289,37 +362,32 @@ p = p +
        panel.border=element_rect(colour="black",size=0.5,fill=NA),
        strip.text.x = element_text(size = 5, face = "bold"),
        strip.text.y = element_text(size = 5, face = "bold"),
-      legend.key.size = unit(5, 'mm'), #change legend key size
+        legend.key.size = unit(5, 'mm'), #change legend key size
       legend.key.height = unit(4, 'mm'), #change legend key height
       legend.key.width = unit(4, 'mm'), #change legend key width
       legend.title = element_text(size=7,face="bold"), #change legend title font size
       legend.text = element_text(size=5,face="bold"),
        panel.grid.major = element_blank(),
        panel.grid.minor = element_blank(),
-       panel.spacing=unit(0,"lines")) +
-      guides(color = guide_legend(override.aes = list(size=3)))
+       panel.spacing=unit(0,"lines"))+
+         scale_size(range = c(0.01,1))+
+         scale_alpha(range = c(0.01,.8))
 
-ggsave(plot=p,file=file.path(outputdir,"facet_ma_alpha_ds.pdf"),width=6.5,height=1.8)
+ggsave(plot=p,file=file.path(outputdir,"facet_scatter_alpha_sim_normlogistic.pdf"),width=6.5,height=1.8)
 
-df_tmp = df %>% filter(strategy=="Simulation",sA %in% c(1e-2,NA),sim==1)
-p=ggplot(df_tmp,aes(x=A,y=M,color=inbounds,alpha=mrate))+
-      geom_point(size=0.25)+
-        geom_hline(yintercept=0, linetype="solid",color = "black", size=0.5)+
-        geom_hline(yintercept=2, linetype="dashed",color = "red", size=1)+
-        geom_hline(yintercept=-2, linetype="dashed",color = "blue", size=1)+
-        ylim(ylims)+
-        scale_colour_manual(values = c("grey30","blue", "red"))+
-        theme_bw()+
-        theme(
-            panel.grid.major = element_blank(), 
-            panel.grid.minor = element_blank())+
-        xlab("Average counts")+
-        ylab("Log ratio")+
+df_tmp = df %>% filter(strategy=="Down-Sampling",lambda==1e-6,sA %in% c(1,NA))
+df_tmp$normlogistic = normalize_trans(logistic_trans(log(df_tmp$normDiffC),k=1,x0=0,l=1))
+# df_tmp$normlogistic = normalize_trans(logistic_trans(log(df_tmp$normDiffC),k=1,x0=10,l=1))
+df_tmp$normexp = normalize_trans(logistic_trans(log(df_tmp$normDiffC),k=1,x0=10,l=1))
+p = ggplot(df_tmp,aes(x=U1, y=U2,color=normlogistic,alpha=normexp)) + 
+      # geom_point(size=0.25)+
+      geom_point(aes(size=log(normDiffC)))+
       facet_nested(strategy~modelfam + imputemodel)
 p = p +
      theme_bw() +
      rotate_x_text(90) +
-     labs(color="Error Sign") +
+     labs(alpha="Error Threshold",color="Cell-wise\nError") +
+     scale_color_jcolors_contin(palette="pal12")+
      theme(
        axis.text=element_text(size=5,face="bold"),
        axis.title=element_text(size=10,face="bold"),
@@ -327,14 +395,14 @@ p = p +
        panel.border=element_rect(colour="black",size=0.5,fill=NA),
        strip.text.x = element_text(size = 5, face = "bold"),
        strip.text.y = element_text(size = 5, face = "bold"),
-      legend.key.size = unit(5, 'mm'), #change legend key size
+        legend.key.size = unit(5, 'mm'), #change legend key size
       legend.key.height = unit(4, 'mm'), #change legend key height
       legend.key.width = unit(4, 'mm'), #change legend key width
       legend.title = element_text(size=7,face="bold"), #change legend title font size
       legend.text = element_text(size=5,face="bold"),
        panel.grid.major = element_blank(),
        panel.grid.minor = element_blank(),
-       panel.spacing=unit(0,"lines")) + 
-       guides(color = guide_legend(override.aes = list(size=3)))
-ggsave(plot=p,file=file.path(outputdir,"facet_ma_alpha_sim.pdf"),width=6.5,height=1.8)
-
+       panel.spacing=unit(0,"lines"))+
+         scale_size(range = c(0.01,1))+
+         scale_alpha(range = c(0.01,.8))
+ggsave(plot=p,file=file.path(outputdir,"facet_scatter_alpha_ds_normlogistic.pdf"),width=6.5,height=1.8)

@@ -158,6 +158,9 @@ run_cluster_plots <- function(imputedC,pdataC,savepath,trueC=NULL){
 
     if(!is.null(trueC)){
         print("trueC detected")
+        
+        # do this in case the imputation function changed the data eg matlab not allowing "." in variable names
+        colnames(imputedC) = colnames(trueC)
         mergeC = trueC
         mergeC[rownames(imputedC),colnames(imputedC)] = imputedC
         p_lr=logratio_plot(imputedC=mergeC,pDataC=pDataC,trueC=trueC,plottitle="MA Plot")

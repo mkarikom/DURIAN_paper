@@ -98,7 +98,7 @@ if(file.exists(fn_trueC)){
     pDataC = read.csv(file.path(sourcepath,"pDataC.csv"),row.names=1)
     trueC = read.csv(file.path(sourcepath,"trueC.csv"),row.names=1)
     trueP = read.csv(file.path(sourcepath,"trueP.csv"),row.names=1)
-    
+
     # remove prefix
     fn_T = file.path(sourcepath,"T.csv")
     fn_pDataC = file.path(sourcepath,"pDataC.csv")
@@ -112,6 +112,11 @@ if(file.exists(fn_trueC)){
     pDataC = read.csv(fn_pDataC,row.names=1)
     trueC = NULL
     trueP = NULL
+
+    print(paste0("C (",nrow(C),",",ncol(C),") mean:",mean(as.matrix(C))))
+    print(paste0("pDataC (",nrow(pDataC),",",ncol(pDataC),") class:",class(pDataC)))
+    print(paste0("T (",nrow(T),",",ncol(T),") mean:",mean(as.matrix(T))))
+
 }else if(file.exists(file.path(sourcepath,"C.csv"))){
     print("case 4: no ground truth, no prefix")
     C = read.csv(file.path(sourcepath,"C.csv"),row.names=1)
@@ -119,7 +124,7 @@ if(file.exists(fn_trueC)){
     pDataC = read.csv(file.path(sourcepath,"pDataC.csv"),row.names=1)
     trueC = NULL
     trueP = NULL
-    
+
     # remove prefix
     fn_T = file.path(sourcepath,"T.csv")
     fn_pDataC = file.path(sourcepath,"pDataC.csv")
@@ -133,7 +138,7 @@ generate = as.numeric(Sys.getenv("SUBGENERATE"))
 set.seed(simrep)
 sampn = min(ncol(C),target)
 C = as.data.frame(t(as.data.frame(t(C)) %>% sample_n(sampn)))
-C = subsetsc(scremoutlier(C),generate=generate,return_obj=TRUE,nsd=3)
+C = subsetsc(scremoutlier(C),generate=generate,return_obj=TRUE,nsd=3)               
 pDataC = pDataC[colnames(C),]
 
 cttab = table(pDataC$cellType)
@@ -142,6 +147,9 @@ toinclude = which(pDataC$cellType %in% names(which(cttab >= mincells)))
 pDataC = pDataC[toinclude,]
 C = C[,rownames(pDataC)]
 T = T[rownames(C),]
+
+print(paste0("subsampled C (",nrow(C),",",ncol(C),") mean:",mean(as.matrix(C))))
+print(paste0("subsampled T (",nrow(T),",",ncol(T),") mean:",mean(as.matrix(T))))
 
 print("environment:")
 print(Sys.getenv())
@@ -352,43 +360,6 @@ if(imethod=="dropout"){
         runstability = runstability,
         useIrlba=useirlba)
     impresult = impresult_list[["C"]]
-    run_cluster_plots(imputedC=impresult,pdataC=pDataC,trueC=trueC,savepath=file.path(savepath,"cluster_plots"))
-    write.csv(pDataC,file.path(savepath,"pDataC.csv"))
-}else if(imethod=="ALRA"){
-    library(rsvd)
-    source(Sys.getenv("ALRALIB"))
-    savepath = file.path(datapath,paste0("imputemodel_",imethod,",simrep_",simrep))
-    dir.create(savepath,recursive=TRUE)
-    print("running ALRA")
-    set.seed(simrep)
-    
-    logdf0 <- data.frame(
-        iter = as.integer(c(NA)),
-        ldaMeanRhat = as.numeric(c(NA)),
-        scrabbleLoss = as.numeric(c(NA)),
-        converged=as.integer(c(1)),
-        status=c("converged"),
-        wallclock=as.numeric(c(0)))
-
-    Start=Sys.time()
-    impresult=run_alra(
-        path=savepath,
-        scdata=C,
-        imputebenchmark = trueC)
-    End=Sys.time()
-    Start_POSIX = as.POSIXct(as.numeric(Start), origin="1970-01-01")
-    End_POSIX = as.POSIXct(as.numeric(End), origin="1970-01-01")
-    totaltime = difftime(End_POSIX,Start_POSIX,units="mins")
-
-    # save cluster metrics
-    logdf <- data.frame(
-        iter = as.integer(c(NA)),
-        ldaMeanRhat = as.numeric(c(NA)),
-        scrabbleLoss = as.numeric(c(NA)),
-        converged=as.integer(c(1)),
-        status=c("converged"),
-        wallclock=as.numeric(c(totaltime)))
-    write.csv(rbind(logdf0,logdf),file.path(savepath,paste0(imethod,"_logdf.csv")))
     run_cluster_plots(imputedC=impresult,pdataC=pDataC,trueC=trueC,savepath=file.path(savepath,"cluster_plots"))
     write.csv(pDataC,file.path(savepath,"pDataC.csv"))
 }else if(imethod=="CMFImpute"){

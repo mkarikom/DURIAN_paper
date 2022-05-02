@@ -25,19 +25,17 @@ library(Seurat)
 library(apeglm)
 library(pheatmap)
 library(ggh4x)
+library(DURIAN)
 
 print("setup environment")
-projdir = "/mnt/md0/insshare/mkarikom/Active_Project_Backup/DURIAN/DURIAN"
-durian_data_dir = file.path(projdir,"slurm/He/durian_data_s2")
-basedir = file.path("slurm/He/recluster_and_DEG/mincells500_s2")
+projdir = "/share/crsp/lab/cellfate/mkarikom/DURIAN_paper_clean"
+durian_data_dir = file.path(projdir,"slurm/He/durian_data")
+basedir = file.path("slurm/He/durian_data")
 plotdir = file.path(basedir,"plots")
 backupdir = file.path(basedir,"backup")
 raw_data_dir = file.path(projdir,"slurm/He/sc_data_raw")
 dir.create(raw_data_dir,recursive = TRUE)
-raw_metadata_dir = file.path(projdir,"slurm/He/sc_data_raw_series_matrix")
-dir.create(raw_metadata_dir,recursive = TRUE)
 
-source(file.path(projdir,"slurm/scrabble_helper_functions/library_scrabble.R"))
 dir.create(plotdir,recursive = TRUE)
 dir.create(backupdir, recursive = TRUE)
 mincells = 500 # the minimum number of cells to make pseudobulk from He
@@ -668,14 +666,14 @@ nl_pDataC = data.frame(colnames(seur_nl),seur_nl@meta.data$mapped_clusters,seur_
 colnames(nl_pDataC) = c("cellID","cellType","sampleID")
 rownames(nl_pDataC) = nl_pDataC$cellID
 
-comgenes = intersect(rownames(seur_nl@assays$RNA@data),rownames(nlbulk))
-inds = subsetsc(x=seur_nl@assays$RNA@data,geneids=comgenes,nsd=3)
+comgenes = intersect(rownames(seur_nl@assays$originalexp@data),rownames(nlbulk))
+inds = subsetsc(x=as.matrix(seur_nl@assays$originalexp@data),geneids=comgenes,nsd=3)
 
-write.csv(seur_nl@assays$RNA@data[inds$gene,inds$cell],file.path(durian_data_dir,paste0("HeNL.sense",myres,"_C.csv")))
+write.csv(seur_nl@assays$originalexp@data[inds$gene,inds$cell],file.path(durian_data_dir,paste0("HeNL.sense",myres,"_C.csv")))
 write.csv(nl_pDataC[inds$cell,],file.path(durian_data_dir,paste0("HeNL.sense",myres,"_pDataC.csv")))
 write.csv(nlbulk[inds$gene,],file.path(durian_data_dir,paste0("SuarezNL.sense",myres,"_T.csv")))
 
-write.csv(edgeR::cpm(seur_nl@assays$RNA@data[inds$gene,inds$cell]),file.path(durian_data_dir,paste0("HeNL.sense",myres,".cpm_C.csv")))
+write.csv(edgeR::cpm(seur_nl@assays$originalexp@data[inds$gene,inds$cell]),file.path(durian_data_dir,paste0("HeNL.sense",myres,".cpm_C.csv")))
 write.csv(nl_pDataC[inds$cell,],file.path(durian_data_dir,paste0("HeNL.sense",myres,".cpm_pDataC.csv")))
 write.csv(edgeR::cpm(nlbulk[inds$gene,]),file.path(durian_data_dir,paste0("SuarezNL.sense",myres,".cpm_T.csv")))
 
@@ -683,7 +681,7 @@ for(durian_max_cells in durian_max_cell_opts){
   set.seed(42)
   maxcells = min(length(inds$cell),durian_max_cells)
   cells = sample(1:length(inds$cell), maxcells, replace=F)
-  write.csv(edgeR::cpm(seur_nl@assays$RNA@data[inds$gene,inds$cell][,cells]),file.path(durian_data_dir,paste0("HeNL.sense",myres,".cpm.sub",maxcells,"_C.csv")))
+  write.csv(edgeR::cpm(seur_nl@assays$originalexp@data[inds$gene,inds$cell][,cells]),file.path(durian_data_dir,paste0("HeNL.sense",myres,".cpm.sub",maxcells,"_C.csv")))
   write.csv(nl_pDataC[inds$cell,][cells,],file.path(durian_data_dir,paste0("HeNL.sense",myres,".cpm.sub",maxcells,"_pDataC.csv")))
 }
 # get the LS data
@@ -692,14 +690,14 @@ ls_pDataC = data.frame(colnames(seur_ls),seur_ls@meta.data$mapped_clusters,seur_
 colnames(ls_pDataC) = c("cellID","cellType","sampleID")
 rownames(ls_pDataC) = ls_pDataC$cellID
 
-comgenes = intersect(rownames(seur_ls@assays$RNA@data),rownames(lsbulk))
-inds = subsetsc(x=seur_ls@assays$RNA@data,geneids=comgenes,nsd=3)
+comgenes = intersect(rownames(seur_ls@assays$originalexp@data),rownames(lsbulk))
+inds = subsetsc(x=as.matrix(seur_ls@assays$originalexp@data),geneids=comgenes,nsd=3)
 
-write.csv(seur_ls@assays$RNA@data[inds$gene,inds$cell],file.path(durian_data_dir,paste0("HeLS.sense",myres,"_C.csv")))
+write.csv(seur_ls@assays$originalexp@data[inds$gene,inds$cell],file.path(durian_data_dir,paste0("HeLS.sense",myres,"_C.csv")))
 write.csv(ls_pDataC[inds$cell,],file.path(durian_data_dir,paste0("HeLS.sense",myres,"_pDataC.csv")))
 write.csv(lsbulk[inds$gene,],file.path(durian_data_dir,paste0("SuarezLS.sense",myres,"_T.csv")))
 
-write.csv(edgeR::cpm(seur_ls@assays$RNA@data[inds$gene,inds$cell]),file.path(durian_data_dir,paste0("HeLS.sense",myres,".cpm_C.csv")))
+write.csv(edgeR::cpm(seur_ls@assays$originalexp@data[inds$gene,inds$cell]),file.path(durian_data_dir,paste0("HeLS.sense",myres,".cpm_C.csv")))
 write.csv(ls_pDataC[inds$cell,],file.path(durian_data_dir,paste0("HeLS.sense",myres,".cpm_pDataC.csv")))
 write.csv(edgeR::cpm(lsbulk[inds$gene,]),file.path(durian_data_dir,paste0("SuarezLS.sense",myres,".cpm_T.csv")))
 
@@ -707,7 +705,7 @@ for(durian_max_cells in durian_max_cell_opts){
   set.seed(42)
   maxcells = min(length(inds$cell),durian_max_cells)
   cells = sample(1:length(inds$cell), maxcells, replace=F)
-  write.csv(edgeR::cpm(seur_ls@assays$RNA@data[inds$gene,inds$cell][,cells]),file.path(durian_data_dir,paste0("HeLS.sense",myres,".cpm.sub",maxcells,"_C.csv")))
+  write.csv(edgeR::cpm(seur_ls@assays$originalexp@data[inds$gene,inds$cell][,cells]),file.path(durian_data_dir,paste0("HeLS.sense",myres,".cpm.sub",maxcells,"_C.csv")))
   write.csv(ls_pDataC[inds$cell,][cells,],file.path(durian_data_dir,paste0("HeLS.sense",myres,".cpm.sub",maxcells,"_pDataC.csv")))
 }
 
@@ -853,14 +851,14 @@ nl_pDataC = data.frame(colnames(seur_nl),seur_nl@meta.data$mapped_clusters,seur_
 colnames(nl_pDataC) = c("cellID","cellType","sampleID")
 rownames(nl_pDataC) = nl_pDataC$cellID
 
-comgenes = intersect(rownames(seur_nl@assays$RNA@data),rownames(nlbulk))
-inds = subsetsc(x=seur_nl@assays$RNA@data,geneids=comgenes,nsd=3)
+comgenes = intersect(rownames(seur_nl@assays$originalexp@data),rownames(nlbulk))
+inds = subsetsc(x=as.matrix(seur_nl@assays$originalexp@data),geneids=comgenes,nsd=3)
 
-write.csv(seur_nl@assays$RNA@data[inds$gene,inds$cell],file.path(durian_data_dir,paste0("HeNL.sense",myres,"_C.csv")))
+write.csv(seur_nl@assays$originalexp@data[inds$gene,inds$cell],file.path(durian_data_dir,paste0("HeNL.sense",myres,"_C.csv")))
 write.csv(nl_pDataC[inds$cell,],file.path(durian_data_dir,paste0("HeNL.sense",myres,"_pDataC.csv")))
 write.csv(nlbulk[inds$gene,],file.path(durian_data_dir,paste0("SuarezNL.sense",myres,"_T.csv")))
 
-write.csv(edgeR::cpm(seur_nl@assays$RNA@data[inds$gene,inds$cell]),file.path(durian_data_dir,paste0("HeNL.sense",myres,".cpm_C.csv")))
+write.csv(edgeR::cpm(seur_nl@assays$originalexp@data[inds$gene,inds$cell]),file.path(durian_data_dir,paste0("HeNL.sense",myres,".cpm_C.csv")))
 write.csv(nl_pDataC[inds$cell,],file.path(durian_data_dir,paste0("HeNL.sense",myres,".cpm_pDataC.csv")))
 write.csv(edgeR::cpm(nlbulk[inds$gene,]),file.path(durian_data_dir,paste0("SuarezNL.sense",myres,".cpm_T.csv")))
 
@@ -868,7 +866,7 @@ for(durian_max_cells in durian_max_cell_opts){
   set.seed(42)
   maxcells = min(length(inds$cell),durian_max_cells)
   cells = sample(1:length(inds$cell), maxcells, replace=F)
-  write.csv(edgeR::cpm(seur_nl@assays$RNA@data[inds$gene,inds$cell][,cells]),file.path(durian_data_dir,paste0("HeNL.sense",myres,".cpm.sub",maxcells,"_C.csv")))
+  write.csv(edgeR::cpm(seur_nl@assays$originalexp@data[inds$gene,inds$cell][,cells]),file.path(durian_data_dir,paste0("HeNL.sense",myres,".cpm.sub",maxcells,"_C.csv")))
   write.csv(nl_pDataC[inds$cell,][cells,],file.path(durian_data_dir,paste0("HeNL.sense",myres,".cpm.sub",maxcells,"_pDataC.csv")))
 }
 # get the LS data
@@ -877,14 +875,14 @@ ls_pDataC = data.frame(colnames(seur_ls),seur_ls@meta.data$mapped_clusters,seur_
 colnames(ls_pDataC) = c("cellID","cellType","sampleID")
 rownames(ls_pDataC) = ls_pDataC$cellID
 
-comgenes = intersect(rownames(seur_ls@assays$RNA@data),rownames(lsbulk))
-inds = subsetsc(x=seur_ls@assays$RNA@data,geneids=comgenes,nsd=3)
+comgenes = intersect(rownames(seur_ls@assays$originalexp@data),rownames(lsbulk))
+inds = subsetsc(x=as.matrix(seur_ls@assays$originalexp@data),geneids=comgenes,nsd=3)
 
-write.csv(seur_ls@assays$RNA@data[inds$gene,inds$cell],file.path(durian_data_dir,paste0("HeLS.sense",myres,"_C.csv")))
+write.csv(seur_ls@assays$originalexp@data[inds$gene,inds$cell],file.path(durian_data_dir,paste0("HeLS.sense",myres,"_C.csv")))
 write.csv(ls_pDataC[inds$cell,],file.path(durian_data_dir,paste0("HeLS.sense",myres,"_pDataC.csv")))
 write.csv(lsbulk[inds$gene,],file.path(durian_data_dir,paste0("SuarezLS.sense",myres,"_T.csv")))
 
-write.csv(edgeR::cpm(seur_ls@assays$RNA@data[inds$gene,inds$cell]),file.path(durian_data_dir,paste0("HeLS.sense",myres,".cpm_C.csv")))
+write.csv(edgeR::cpm(seur_ls@assays$originalexp@data[inds$gene,inds$cell]),file.path(durian_data_dir,paste0("HeLS.sense",myres,".cpm_C.csv")))
 write.csv(ls_pDataC[inds$cell,],file.path(durian_data_dir,paste0("HeLS.sense",myres,".cpm_pDataC.csv")))
 write.csv(edgeR::cpm(lsbulk[inds$gene,]),file.path(durian_data_dir,paste0("SuarezLS.sense",myres,".cpm_T.csv")))
 
@@ -892,6 +890,6 @@ for(durian_max_cells in durian_max_cell_opts){
   set.seed(42)
   maxcells = min(length(inds$cell),durian_max_cells)
   cells = sample(1:length(inds$cell), maxcells, replace=F)
-  write.csv(edgeR::cpm(seur_ls@assays$RNA@data[inds$gene,inds$cell][,cells]),file.path(durian_data_dir,paste0("HeLS.sense",myres,".cpm.sub",maxcells,"_C.csv")))
+  write.csv(edgeR::cpm(seur_ls@assays$originalexp@data[inds$gene,inds$cell][,cells]),file.path(durian_data_dir,paste0("HeLS.sense",myres,".cpm.sub",maxcells,"_C.csv")))
   write.csv(ls_pDataC[inds$cell,][cells,],file.path(durian_data_dir,paste0("HeLS.sense",myres,".cpm.sub",maxcells,"_pDataC.csv")))
 }

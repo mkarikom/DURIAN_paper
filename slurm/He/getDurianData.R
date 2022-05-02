@@ -19,18 +19,16 @@ library(ArrayExpress)
 library(readr)
 library(AnnotationHub)
 library(tximport)
+library(DURIAN)
 
-
-project_dir = "/dfs5/bio/mkarikom/temp/DURIAN"
-data_dir = file.path(project_dir,"slurm/He/durian_data")
+project_dir = "/share/crsp/lab/cellfate/mkarikom/DURIAN_paper_clean"
+data_dir = file.path(project_dir,"slurm/He/durian_data_hpc")
 sc_data_dir = file.path(project_dir,"slurm/He/sc_data")
 quant_bulk_data_dir = file.path(project_dir,"slurm/He/salmon_output_sbatch")
 
 sapply(list(data_dir,
             sc_data_dir,
             quant_bulk_data_dir),dir.create,recursive = TRUE);
-
-source(file.path(project_dir,"slurm/scrabble_helper_functions/library_scrabble.R"))
 
 #############################################################################
 # Suarez-Farinas 2015 (https://doi.org/10.1016/j.jaci.2015.03.003) 
@@ -129,6 +127,7 @@ donors_nl = unname(sapply(barcodes_nl,function(x){
 stringr::str_split(x,"_")[[1]][1]
 }))
 pDataC_nl = data.frame(cellID=barcodes_nl,cellType=labels_nl,sampleID=donors_nl)
+rownames(pDataC_nl) = pDataC_nl$cellID
 
 barcodes_ls = colnames(sc_ls@data)
 labels_ls = sc_ls@idents
@@ -136,6 +135,7 @@ donors_ls = unname(sapply(barcodes_ls,function(x){
 stringr::str_split(x,"_")[[1]][1]
 }))
 pDataC_ls = data.frame(cellID=barcodes_ls,cellType=labels_ls,sampleID=donors_ls)
+rownames(pDataC_ls) = pDataC_ls$cellID
 
 write.csv(sc_ls@data,file = file.path(data_dir,"HeLS_C.csv"))
 write.csv(sc_nl@data,file = file.path(data_dir,"HeNL_C.csv"))
@@ -148,58 +148,31 @@ write.csv(bulk_concat_rounded,file = file.path(data_dir,"Suarez_T.csv"))
 write.csv(bulk_concat_rounded[,which(bulk_status=="NL")],file = file.path(data_dir,"SuarezNL_T.csv"))
 write.csv(bulk_concat_rounded[,which(bulk_status=="LS")],file = file.path(data_dir,"SuarezLS_T.csv"))
 
-write.csv(bulk_concat_rounded,file = file.path(data_dir,"Suarez.cpm_T.csv"))
-write.csv(bulk_concat_rounded[,which(bulk_status=="NL")],file = file.path(data_dir,"SuarezNL.cpm_T.csv"))
-write.csv(bulk_concat_rounded[,which(bulk_status=="LS")],file = file.path(data_dir,"SuarezLS.cpm_T.csv"))
+# # use seurat vst thresholding for genes
+seurLS = CreateSeuratObject(counts=sc_ls@data)
+seurNL = CreateSeuratObject(counts=sc_nl@data)
 
-# #############################################################################
-# # thresholding
-# #############################################################################
+seurLS = NormalizeData(seurLS)
+seurNL = NormalizeData(seurNL)
 
-# subsample 1000 cells from uncorrected
-target = 1000
-set.seed(1)
-scdata = as.data.frame(t(read.csv("slurm/He/durian_data/HeLS.cpm_C.csv",row.names=1)))
-sampn = min(nrow(scdata),target)
-HeSC.LS.cpm1K05_C = as.data.frame(t(scdata %>% sample_n(sampn)))
-HeSC.LS.cpm1K05_C = subsetsc(scremoutlier(HeSC.LS.cpm1K05_C),generate=0.05,return_obj=TRUE,nsd=3)
-HeSC.LS.cpm1K05_pDataC = read.csv("slurm/He/durian_data/HeLS.cpm_pDataC.csv",row.names=1)
-rownames(HeSC.LS.cpm1K05_pDataC) = HeSC.LS.cpm1K05_pDataC$cellID
-HeSC.LS.cpm1K05_pDataC = HeSC.LS.cpm1K05_pDataC[colnames(HeSC.LS.cpm1K05_C),]
+genesLS = VariableFeatures(FindVariableFeatures(seurLS, selection.method = "vst", nfeatures = 5000))
+genesNL = VariableFeatures(FindVariableFeatures(seurNL, selection.method = "vst", nfeatures = 5000))
 
-write.csv(HeSC.LS.cpm1K05_C,file="slurm/He/durian_data/HeSC.LS.cpm1K05_C.csv")
-write.csv(HeSC.LS.cpm1K05_pDataC,file="slurm/He/durian_data/HeSC.LS.cpm1K05_pDataC.csv")
+commgenes = intersect(intersect(genesLS,rownames(bulk_concat_rounded)),genesNL)
+ls.VST_C = subsetsc(as.matrix(sc_ls@data),geneids=commgenes,return_obj=TRUE,nsd=3)
+nl.VST_C = subsetsc(as.matrix(sc_nl@data),geneids=commgenes,return_obj=TRUE,nsd=3)
 
-set.seed(1)
-scdata = as.data.frame(t(read.csv("slurm/He/durian_data/HeNL.cpm_C.csv",row.names=1)))
-sampn = min(nrow(scdata),target)
-HeSC.NL.cpm1K05_C = as.data.frame(t(scdata %>% sample_n(sampn)))
-HeSC.NL.cpm1K05_C = subsetsc(scremoutlier(HeSC.NL.cpm1K05_C),generate=0.05,return_obj=TRUE,nsd=3)
-HeSC.NL.cpm1K05_pDataC = read.csv("slurm/He/durian_data/HeNL.cpm_pDataC.csv",row.names=1)
-rownames(HeSC.NL.cpm1K05_pDataC) = HeSC.NL.cpm1K05_pDataC$cellID
-HeSC.NL.cpm1K05_pDataC = HeSC.NL.cpm1K05_pDataC[colnames(HeSC.NL.cpm1K05_C),]
+ls.VST_pDataC = pDataC_ls[colnames(ls.VST_C),]
+nl.VST_pDataC = pDataC_nl[colnames(nl.VST_C),]
 
-write.csv(HeSC.NL.cpm1K05_C,file="slurm/He/durian_data/HeSC.NL.cpm1K05_C.csv")
-write.csv(HeSC.NL.cpm1K05_pDataC,file="slurm/He/durian_data/HeSC.NL.cpm1K05_pDataC.csv")
+write.csv(ls.VST_pDataC,file = file.path(data_dir,"HeLS.VST_pDataC.csv"))
+write.csv(nl.VST_pDataC,file = file.path(data_dir,"HeNL.VST_pDataC.csv"))
 
-# subsample 1000 cells from DEG corrected
-target = 1000
-set.seed(1)
-scdata = as.data.frame(t(read.csv("slurm/He/durian_data/HeLS.sense0.1_C.csv",row.names=1)))
-sampn = min(nrow(scdata),target)
-HeSC.LS.sense01.cpm1K05_C = as.data.frame(t(scdata %>% sample_n(sampn)))
-HeSC.LS.sense01.cpm1K05_C = subsetsc(scremoutlier(HeSC.LS.sense01.cpm1K05_C),generate=0.05,return_obj=TRUE,nsd=3)
-HeSC.LS.sense01.cpm1K05_pDataC = read.csv("slurm/He/durian_data/HeLS.sense0.1_pDataC.csv",row.names=1)[colnames(HeSC.LS.sense01.cpm1K05_C),]
+write.csv(ls.VST_C,file = file.path(data_dir,"HeLS.VST_C.csv"))
+write.csv(nl.VST_C,file = file.path(data_dir,"HeNL.VST_C.csv"))
 
-write.csv(HeSC.LS.sense01.cpm1K05_C,file="slurm/He/durian_data/HeSC.LS.sense01.cpm1K05_C.csv")
-write.csv(HeSC.LS.sense01.cpm1K05_pDataC,file="slurm/He/durian_data/HeSC.LS.sense01.cpm1K05_pDataC.csv")
+write.csv(bulk_concat_rounded[commgenes,which(bulk_status=="LS")],file = file.path(data_dir,"SuarezLS.VST_T.csv"))
+write.csv(bulk_concat_rounded[commgenes,which(bulk_status=="NL")],file = file.path(data_dir,"SuarezNL.VST_T.csv"))
 
-set.seed(1)
-scdata = as.data.frame(t(read.csv("slurm/He/durian_data/HeNL.sense0.1_C.csv",row.names=1)))
-sampn = min(nrow(scdata),target)
-HeSC.NL.sense01.cpm1K05_C = as.data.frame(t(scdata %>% sample_n(sampn)))
-HeSC.NL.sense01.cpm1K05_C = subsetsc(scremoutlier(HeSC.NL.sense01.cpm1K05_C),generate=0.05,return_obj=TRUE,nsd=3)
-HeSC.NL.sense01.cpm1K05_pDataC = read.csv("slurm/He/durian_data/HeNL.sense0.1_pDataC.csv",row.names=1)[colnames(HeSC.NL.sense01.cpm1K05_C),]
-
-write.csv(HeSC.NL.sense01.cpm1K05_C,file="slurm/He/durian_data/HeSC.NL.sense01.cpm1K05_C.csv")
-write.csv(HeSC.NL.sense01.cpm1K05_pDataC,file="slurm/He/durian_data/HeSC.NL.sense01.cpm1K05_pDataC.csv")
+write.csv(bulk_concat_rounded[commgenes,which(bulk_status=="LS")[1:5]],file = file.path(data_dir,"SuarezLS1to5.VST_T.csv"))
+write.csv(bulk_concat_rounded[commgenes,which(bulk_status=="NL")[1:5]],file = file.path(data_dir,"SuarezNL1to5.VST_T.csv"))

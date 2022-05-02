@@ -8,7 +8,7 @@ nsleepsim=30 # amount of time to sleep after generating sc simulation (prevent p
 nsleepfit=5 # amount of time to sleep in between steps that seem to miss key environment vars
 nsleeploop=5 # how long to sleep between loop iterations
 dsname=Baron
-suffix=ResampleTest
+suffix=ResampleTest2
 prefix=$dsname
 SLURMACCT=qnie_lab
 
@@ -16,7 +16,7 @@ export EMDIAG=FALSE
 export SLURMPARTITION=free
 # export slurmtimelimit=3-00:00:00
 export slurmtimelimit=0-00:30:00
-export PROJECTDIR=/dfs6/pub/mkarikom/code/DURIAN_paper_clean
+export PROJECTDIR=/share/crsp/lab/cellfate/mkarikom/DURIAN_paper_clean
 export BASEDIR=$PROJECTDIR/slurm
 export OUTPUTMASTER=$BASEDIR/${dsname}/output.clusterMetrics.$SLURMPARTITION.$suffix
 export NBULK=10

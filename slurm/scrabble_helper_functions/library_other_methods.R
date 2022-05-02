@@ -228,7 +228,16 @@ run_alra <- function(
     true_sub = imputebenchmark
     result_sub = exdata
 
+    write.csv(true_sub,file.path(path, "true_sub.csv"))
+    write.csv(result_sub,file.path(path, "result_sub.csv"))
+
+    print(paste0("result_sub (",nrow(result_sub),",",ncol(result_sub),") class:",class(result_sub)))
+    print(paste0("true_sub (",nrow(true_sub),",",ncol(true_sub),") class:",class(true_sub)))
+
+    print("getmetrics(result_sub,true_sub)")
+    print(getmetrics)
     impute_metrics = getmetrics(result_sub,true_sub)
+    print("FINISH getmetrics(result_sub,true_sub)")
 
     dropout_rate = getdroprate(result_sub,true_sub)
 
@@ -239,7 +248,7 @@ run_alra <- function(
     mean_cor_cell = impute_metrics[["mean_col"]]
     errnorm = impute_metrics[["errnorm"]]
     write.csv(data.frame(
-      modelname=c("DrImpute"),
+      modelname=c("ALRA"),
       ENORM=c(errnorm),
       RMSE=c(impute_rmse),
       Gene=c(cor_gene),
@@ -305,7 +314,7 @@ run_cmfimpute <- function(
     mean_cor_cell = impute_metrics[["mean_col"]]
     errnorm = impute_metrics[["errnorm"]]
     write.csv(data.frame(
-      modelname=c("DrImpute"),
+      modelname=c("CMFImpute"),
       ENORM=c(errnorm),
       RMSE=c(impute_rmse),
       Gene=c(cor_gene),
@@ -371,7 +380,7 @@ run_g2s3 <- function(
     mean_cor_cell = impute_metrics[["mean_col"]]
     errnorm = impute_metrics[["errnorm"]]
     write.csv(data.frame(
-      modelname=c("DrImpute"),
+      modelname=c("G2S3"),
       ENORM=c(errnorm),
       RMSE=c(impute_rmse),
       Gene=c(cor_gene),

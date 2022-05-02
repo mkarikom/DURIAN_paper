@@ -7,20 +7,19 @@ nsleepsim=120 # amount of time to sleep after generating sc simulation (prevent 
 nsleepfit=5 # amount of time to sleep in between steps that seem to miss key environment vars
 nsleeploop=5 # how long to sleep between loop iterations
 export nsleepdatapath=1 # how long to sleep after creating pb data path
-suffix=BaronOuterStatsAllNested
+suffix=DownsampPB_BetasLow
 
 export EMDIAG=FALSE
 export NPBULK=3 # the max number of pseudobulk samples within a sim
-# export NSIM=50
-export NSIM=2
+export NSIM=25
 export PBTRAINRATE=0.5
-# export SLURMPARTITION=standard
-export SLURMPARTITION=free
+export SLURMPARTITION=highmem
 export SLURMACCT=qnie_lab
-MEMPERCPU=10000
-# export slurmtimelimit=0-02:30:00
-export slurmtimelimit=0-00:30:00
-export PROJECTDIR=/dfs6/pub/mkarikom/code/DURIAN_paper_clean
+MEMPERCPU=16000
+export NODETMP=2000 # amount of /tmp space available, if this fills up then R might crash
+export slurmtimelimit=1-00:00:00
+export PROJECTDIR=/share/crsp/lab/cellfate/mkarikom/DURIAN_paper_clean
+cd $PROJECTDIR
 export BASEDIR=$PROJECTDIR/slurm
 export NCPUS=$((NPBULK+1))
 export NCPUSLOW=2
@@ -97,15 +96,10 @@ export ERR_OUT_THRESH=1e-7 # 1e-7
 export RUNOUTERSTATS=FALSE
 export RUNSTABILITY=FALSE
 
-SCPARAMS=( "1,1e-6,1e-4" "1e-2,1e-5,1e-5" )
-DPARAMS=( "1,1e-6,1e-4" "1e-2,1e-5,1e-5" )
+export SUBSAMPLECPM=FALSE
 
-######################################################################################
-# DELETE
-######################################################################################
-LAMBDAS=( 1e-6 )
-SCPARAMS=( "1,1e-6,1e-4" )
-DPARAMS=( "1,1e-6,1e-4" )
+# DPARAMS=( "1e-1,1e-3,1e-5" "1e-1,1e-5,1e-5" "1e-1,1e-7,1e-5" )
+DPARAMS=( "1e-1,0,1e-5" "1e-1,1e-4,1e-5" )
 
 declare -a ALLDEPENDS=''
 
@@ -152,7 +146,6 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                 --job-name=$SBATCHJOBNAME \
                 --error=$SBATCHERRDIR/err_%x_%A_%a.log \
                 --out=$SBATCHOUTDIR/out_%x_%A_%a.log \
-                --wait \
                 $SBATCHSUB | cut -f 4 -d' ')
                 PSEUDODEPENDS+=":${sbatchid}"
 
@@ -162,8 +155,7 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                 # fit non-ursm imputation methods
                 ######################################################################################
 
-
-                IMPUTE_METHODS=( DrImpute dropout ALRA G2S3 CMFImpute )
+                IMPUTE_METHODS=( dropout )
                 SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task.sub
                 export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods.R
                 export nCoresAvail=$NCPUS # this is the number of workers we want
@@ -197,45 +189,6 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                 done
 
                 sleep $nsleepfit
-
-                ######################################################################################
-                # fit scrabble and mtscrabble
-                ######################################################################################
-                IMPUTE_METHODS=( SCRABBLE mtSCRABBLE )
-
-                for IMPUTE_METHOD in "${IMPUTE_METHODS[@]}"; do
-                        for SCPARAM in "${SCPARAMS[@]}"; do
-                                IFS="," read -r ScrabbleAlpha ScrabbleBeta ScrabbleGamma <<< "${SCPARAM}"
-                                export ScrabbleAlpha
-                                export ScrabbleBeta
-                                export ScrabbleGamma
-
-                                export IMPUTE_METHOD
-                                export SIMREP=42
-                                echo running $IMPUTE_METHOD after $PSEUDODEPENDS
-                                SBATCHJOBNAME=fit_${IMPUTE_METHOD}_$suffix
-                                SBATCHOUTDIR=${PBULKBASEDIR},output_logs/pseudo_fit_$IMPUTE_METHOD/out
-                                SBATCHERRDIR=${PBULKBASEDIR},output_logs/pseudo_fit_$IMPUTE_METHOD/err
-                                mkdir -p $SBATCHERRDIR
-                                mkdir -p $SBATCHOUTDIR
-                                # collect the job ids `sbatchid` in an array
-                                sbatchid=$(sbatch \
-                                --account=$SLURMACCT \
-                                --array=1-$NSIM \
-                                --partition=$SLURMPARTITION \
-                                --cpus-per-task=$NCPUS \
-                                --time=$slurmtimelimit \
-                                --mem-per-cpu=$MEMPERCPU \
-                                --job-name=$SBATCHJOBNAME \
-                                --error=$SBATCHERRDIR/err_%x_%A_%a.log \
-                                --out=$SBATCHOUTDIR/out_%x_%A_%a.log \
-                                --dependency=afterany$PSEUDODEPENDS \
-                                $SBATCHSUB | cut -f 4 -d' ')
-                                NONURSMDEPENDS+=":${sbatchid}"
-                                let SIMREP=SIMREP+1 
-                                sleep $nsleeploop
-                        done
-                done
                 ######################################################################################
                 # fit durian music
                 ######################################################################################
@@ -268,6 +221,7 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                         echo running durian music after $PSEUDODEPENDS
                         sbatchid=$(sbatch \
                         --account=$SLURMACCT \
+                        --tmp=$NODETMP \
                         --array=1-$NSIM \
                         --partition=$SLURMPARTITION \
                         --cpus-per-task=$NCPUS \
@@ -316,6 +270,7 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                         echo running durian dslda after $PSEUDODEPENDS
                         sbatchid=$(sbatch \
                         --account=$SLURMACCT \
+                        --tmp=$NODETMP \
                         --array=1-$NSIM \
                         --partition=$SLURMPARTITION \
                         --cpus-per-task=$NCPUS \
@@ -329,93 +284,7 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                         NONURSMDEPENDS+=":${sbatchid}"
                 done
 
-                ######################################################################################
-                # pre-generate all the ursm tmp files
-                ######################################################################################
-                SBATCHJOBNAME=pre_ursm_$suffix
-                SBATCHOUTDIR=${PBULKBASEDIR},output_logs/pseudo_pre-ursm/out
-                SBATCHERRDIR=${PBULKBASEDIR},output_logs/pseudo_pre-ursm/err
-                mkdir -p $SBATCHERRDIR
-                mkdir -p $SBATCHOUTDIR
-
-                SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task.sub
-                export JOBSCRIPT=$BASEDIR/application_scripts/prep_ursm.R
-
-                echo running ursm prep after $PSEUDODEPENDS
-                sbatchid=$(sbatch \
-                --account=$SLURMACCT \
-                --array=1-$NSIM \
-                --partition=$SLURMPARTITION \
-                --cpus-per-task=$NCPUSLOW \
-                --time=$slurmtimelimit \
-                --mem-per-cpu=$MEMPERCPU \
-                --job-name=$SBATCHJOBNAME \
-                --error=$SBATCHERRDIR/err_%x_%A_%a.log \
-                --out=$SBATCHOUTDIR/out_%x_%A_%a.log \
-                --dependency=afterany$PSEUDODEPENDS \
-                $SBATCHSUB | cut -f 4 -d' ')
-                URSMDEPENDS2+=":${sbatchid}"
-
-                ######################################################################################
-                # fit ursm
-                ######################################################################################
-                SBATCHJOBNAME=fit_ursm_$suffix
-                SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task_ursm.sub
-                SIMREP=0
-
-                SBATCHOUTDIR=${PBULKBASEDIR},output_logs/pseudo_fit_ursm/out
-                SBATCHERRDIR=${PBULKBASEDIR},output_logs/pseudo_fit_ursm/err
-                mkdir -p $SBATCHERRDIR
-                mkdir -p $SBATCHOUTDIR
-
-                export EM_maxiter=$ursmEmlimit
-                export output_prefix=gemout_
-
-                echo running ursm fit after $URSMDEPENDS2
-                sbatchid=$(sbatch \
-                --account=$SLURMACCT \
-                --array=1-$NSIM \
-                --partition=$SLURMPARTITION \
-                --cpus-per-task=$NCPUSLOW \
-                --time=$slurmtimelimit \
-                --mem-per-cpu=$MEMPERCPU \
-                --job-name=$SBATCHJOBNAME \
-                --error=$SBATCHERRDIR/err_%x_%A_%a.log \
-                --out=$SBATCHOUTDIR/out_%x_%A_%a.log \
-                --dependency=afterany$URSMDEPENDS2 \
-                $SBATCHSUB | cut -f 4 -d' ')
-                URSMDEPENDS3+=":${sbatchid}"
-
-                ######################################################################################
-                # analyze ursm
-                ######################################################################################
-                SBATCHJOBNAME=err_ursm_$suffix
-                SBATCHOUTDIR=${PBULKBASEDIR},output_logs/pseudo_analyze-ursm/out
-                SBATCHERRDIR=${PBULKBASEDIR},output_logs/pseudo_analyze-ursm/err
-                mkdir -p $SBATCHERRDIR
-                mkdir -p $SBATCHOUTDIR
-
-                SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task.sub
-                export JOBSCRIPT=$BASEDIR/application_scripts/analyze_ursm.R
-
-
-                echo running ursm err after $URSMDEPENDS2
-                sbatchid=$(sbatch \
-                --account=$SLURMACCT \
-                --array=1-$NSIM \
-                --partition=$SLURMPARTITION \
-                --cpus-per-task=$NCPUSLOW \
-                --time=$slurmtimelimit \
-                --mem-per-cpu=$MEMPERCPU \
-                --job-name=$SBATCHJOBNAME \
-                --error=$SBATCHERRDIR/err_%x_%A_%a.log \
-                --out=$SBATCHOUTDIR/out_%x_%A_%a.log \
-                --dependency=afterany$URSMDEPENDS3 \
-                $SBATCHSUB | cut -f 4 -d' ')
-                URSMDEPENDS4+=":${sbatchid}"
-
-                export SUMMARYDEPENDS=$NONURSMDEPENDS$URSMDEPENDS4
-                # sleep $nsleepfit
+                export SUMMARYDEPENDS=$NONURSMDEPENDS
 
                 ######################################################################################
                 # summarize final output of all methods
@@ -432,7 +301,8 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
 
                 sbatchid=$(sbatch \
                 --account=$SLURMACCT \
-                --partition=$SLURMPARTITION \
+                --tmp=$NODETMP \
+                --partition=highmem \
                 --cpus-per-task=$NCPUSLOW \
                 --time=$slurmtimelimit \
                 --mem-per-cpu=$MEMPERCPU \
@@ -458,7 +328,8 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
 
                 sbatchid=$(sbatch \
                 --account=$SLURMACCT \
-                --partition=$SLURMPARTITION \
+                --tmp=$NODETMP \
+                --partition=highmem \
                 --cpus-per-task=$NCPUSLOW \
                 --time=$slurmtimelimit \
                 --mem-per-cpu=$MEMPERCPU \
@@ -469,7 +340,6 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                 $SBATCHSUB | cut -f 4 -d' ')
                 export ALLDEPENDS=:${sbatchid}${ALLDEPENDS}
         done
-
         ######################################################################################
         # combine all output for fig2
         ######################################################################################
@@ -485,7 +355,8 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
 
         sbatchid=$(sbatch \
         --account=$SLURMACCT \
-        --partition=$SLURMPARTITION \
+        --tmp=$NODETMP \
+        --partition=highmem \
         --cpus-per-task=$NCPUSLOW \
         --time=$slurmtimelimit \
         --mem-per-cpu=$MEMPERCPU \
@@ -510,7 +381,8 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
 
         sbatchid=$(sbatch \
         --account=$SLURMACCT \
-        --partition=$SLURMPARTITION \
+        --tmp=$NODETMP \
+        --partition=highmem \
         --cpus-per-task=$NCPUSLOW \
         --time=$slurmtimelimit \
         --mem-per-cpu=$MEMPERCPU \
@@ -535,7 +407,8 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
 
         sbatchid=$(sbatch \
         --account=$SLURMACCT \
-        --partition=$SLURMPARTITION \
+        --tmp=$NODETMP \
+        --partition=highmem \
         --cpus-per-task=$NCPUSLOW \
         --time=$slurmtimelimit \
         --mem-per-cpu=$MEMPERCPU \
@@ -544,5 +417,4 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
         --out=$SBATCHOUTDIR/out_%x_%A_%a.log \
         --dependency=afterany$ALLDEPENDS \
         $SBATCHSUB | cut -f 4 -d' ')
-
 done

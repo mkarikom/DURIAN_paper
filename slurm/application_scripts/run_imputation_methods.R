@@ -1,7 +1,23 @@
 # run_imputation_methods_clusterMetrics.R
 
-# .libPaths(c("/tmp/mkarikom/mylibs","/data/homezvol2/mkarikom/R/x86_64-pc-linux-gnu-library/4.0"))
-# .libPaths(c(Sys.getenv("LOCAL_R_LIBS_USER"),Sys.getenv("R_LIBS_USER")))
+
+subsamplecpm <- function(fn_C,fn_pDataC,fn_T,altpath,durian_max_cells,generate=0.05){
+    set.seed(42)
+    data = read.csv(fn_C,row.names=1)
+    bdata = read.csv(fn_T,row.names=1)
+    metadata = read.csv(fn_pDataC,row.names=1)
+    inds = c(1:ncol(data))
+    maxcells = min(length(inds),durian_max_cells)
+    cells = sample(1:length(inds), maxcells, replace=F)
+    data = subsetsc(edgeR::cpm(data[,cells]),return_obj=TRUE,generate=generate)
+    metadata = metadata[cells,]
+    bdata = bdata[intersect(rownames(data),rownames(bdata)),]
+    write.csv(data,file.path(altpath,"C.csv"))
+    write.csv(metadata,file.path(altpath,"pDataC.csv"))
+    write.csv(bdata,file.path(altpath,"T.csv"))
+    return(list(fn_C=file.path(altpath,"C.csv"),fn_T=file.path(altpath,"T.csv"),fn_pDataC=file.path(altpath,"pDataC.csv")))
+}
+
 .libPaths(c(Sys.getenv("R_LIBS_USER")))
 
 library(Seurat,lib.loc="/data/homezvol2/mkarikom/R/x86_64-pc-linux-gnu-library/4.0")
@@ -23,7 +39,6 @@ library(DURIAN,lib.loc="/data/homezvol2/mkarikom/R/x86_64-pc-linux-gnu-library/4
 ### arguments
 datapath = Sys.getenv("DATAPATH")
 sourcepath = Sys.getenv("SOURCEPATH")
-outputmaster = Sys.getenv("OUTPUTMASTER")
 prefix = strsplit(Sys.getenv("PREFIXTUPLE"),";")[[1]]
 imethod = Sys.getenv("IMPUTE_METHOD")
 deconv_method = Sys.getenv("DECONVMETHOD")
@@ -79,11 +94,48 @@ fn_pDataC = file.path(sourcepath,paste0(prefix[1],"_pDataC.csv"))
 fn_C = file.path(sourcepath,paste0(prefix[1],"_C.csv"))
 fn_trueC = file.path(sourcepath,paste0(prefix[1],"_trueC.csv"))
 fn_trueP = file.path(sourcepath,paste0(prefix[2],"_trueP.csv"))
-print(paste0("exists T=",file.exists(fn_T)))
-print(paste0("exists pdatac=",file.exists(fn_pDataC)))
-print(paste0("exists c=",file.exists(fn_C)))
-print(paste0("exists truec=",file.exists(fn_trueC)))
-print(paste0("exists truep=",file.exists(fn_trueP)))
+cat(paste0("exists T=",file.exists(fn_T),"\n",fn_T,"\n"))
+cat(paste0("exists pdatac=",file.exists(fn_pDataC),"\n",fn_pDataC,"\n"))
+cat(paste0("exists c=",file.exists(fn_C),"\n",fn_C,"\n"))
+cat(paste0("exists truec=",file.exists(fn_trueC),"\n",fn_trueP,"\n"))
+cat(paste0("exists truep=",file.exists(fn_trueP),"\n",fn_trueP,"\n"))
+
+if(imethod=="dropout"){
+    savepath = file.path(datapath,paste0("imputemodel_",imethod,",simrep_",simrep))
+    dir.create(savepath,recursive=TRUE)
+}else if(imethod=="DrImpute"){
+    savepath = file.path(datapath,paste0("imputemodel_",imethod,",simrep_",simrep))
+    dir.create(savepath,recursive=TRUE)
+}else if(imethod=="SCRABBLE"){
+    savepath = file.path(datapath,paste0("imputemodel_",imethod,",simrep_",simrep,",sgene_",scrgenethresh,",sA_",ScrabbleAlpha,",sB_",ScrabbleBeta,",sG_",ScrabbleGamma,",errIn_",error_inner_threshold,",errOut_",error_out_threshold,",nIterOut_",ScrnIterOuter,",nIterIn_",ScrnIterInner,",nSDC_",ScrnSDCIters))
+    dir.create(savepath,recursive=TRUE)
+}else if(imethod=="mtSCRABBLE"){
+    savepath = file.path(datapath,paste0("imputemodel_",imethod,",simrep_",simrep,",sgene_",scrgenethresh,",sA_",ScrabbleAlpha,",sB_",ScrabbleBeta,",sG_",ScrabbleGamma,",errIn_",error_inner_threshold,",errOut_",error_out_threshold,",nIterOut_",ScrnIterOuter,",nIterIn_",ScrnIterInner,",nSDC_",ScrnSDCIters))
+    dir.create(savepath,recursive=TRUE)
+}else if(imethod=="DURIAN"){
+    savepath = file.path(datapath,paste0("imputemodel_",imethod,".",deconv_method,",simrep_",simrep,",dgene_",deconvgenethresh,",sgene_",scrgenethresh,",sA_",DurianAlpha,",sB_",DurianBeta,",sG_",DurianGamma,",errIn_",error_inner_threshold,",errOut_",error_out_threshold,",nIterOut_",DunIterOuter,",nIterIn_",DunIterInner,",nSDC_",DunSDCIters,",duEps_",durianEps,",nEM_",nEM))
+    dir.create(savepath,recursive=TRUE)
+}else if(imethod=="CMFImpute"){
+    savepath = file.path(datapath,paste0("imputemodel_",imethod,",simrep_",simrep))
+    dir.create(savepath,recursive=TRUE)
+}else if(imethod=="G2S3"){
+    savepath = file.path(datapath,paste0("imputemodel_",imethod,",simrep_",simrep))
+    dir.create(savepath,recursive=TRUE)
+}
+
+if(as.logical(Sys.getenv("SUBSAMPLECPM"))){
+    fns = subsamplecpm(
+        fn_C=fn_C,
+        fn_T=fn_T,
+        fn_pDataC=fn_pDataC,
+        altpath=savepath,
+        durian_max_cells=as.integer(Sys.getenv("CELLSAMPLESIZE")),
+        generate=as.numeric(Sys.getenv("SUBGENERATE")))
+
+    fn_C = fns$fn_C
+    fn_pDataC = fns$fn_pDataC
+    fn_T = fns$fn_T
+}
 
 if(file.exists(fn_trueC)){
     print("case 1: with ground truth, with prefix")
@@ -129,6 +181,7 @@ if(file.exists(fn_trueC)){
 
 print("environment:")
 print(Sys.getenv())
+
 
 if(imethod=="dropout"){
     savepath = file.path(datapath,paste0("imputemodel_",imethod,",simrep_",simrep))
@@ -333,42 +386,6 @@ if(imethod=="dropout"){
         useIrlba=useirlba)
     impresult = impresult_list[["C"]]
     run_cluster_plots(imputedC=impresult,pdataC=pDataC,trueC=trueC,savepath=file.path(savepath,"cluster_plots"))
-}else if(imethod=="ALRA"){
-    library(rsvd)
-    source(Sys.getenv("ALRALIB"))
-    savepath = file.path(datapath,paste0("imputemodel_",imethod,",simrep_",simrep))
-    dir.create(savepath,recursive=TRUE)
-    print("running ALRA")
-    set.seed(simrep)
-    
-    logdf0 <- data.frame(
-        iter = as.integer(c(NA)),
-        ldaMeanRhat = as.numeric(c(NA)),
-        scrabbleLoss = as.numeric(c(NA)),
-        converged=as.integer(c(1)),
-        status=c("converged"),
-        wallclock=as.numeric(c(0)))
-
-    Start=Sys.time()
-    impresult=run_alra(
-        path=savepath,
-        scdata=C,
-        imputebenchmark = trueC)
-    End=Sys.time()
-    Start_POSIX = as.POSIXct(as.numeric(Start), origin="1970-01-01")
-    End_POSIX = as.POSIXct(as.numeric(End), origin="1970-01-01")
-    totaltime = difftime(End_POSIX,Start_POSIX,units="mins")
-
-    # save cluster metrics
-    logdf <- data.frame(
-        iter = as.integer(c(NA)),
-        ldaMeanRhat = as.numeric(c(NA)),
-        scrabbleLoss = as.numeric(c(NA)),
-        converged=as.integer(c(1)),
-        status=c("converged"),
-        wallclock=as.numeric(c(totaltime)))
-    write.csv(rbind(logdf0,logdf),file.path(savepath,paste0(imethod,"_logdf.csv")))
-    run_cluster_plots(imputedC=impresult,pdataC=pDataC,trueC=trueC,savepath=file.path(savepath,"cluster_plots"))
 }else if(imethod=="CMFImpute"){
     savepath = file.path(datapath,paste0("imputemodel_",imethod,",simrep_",simrep))
     dir.create(savepath,recursive=TRUE)
@@ -407,6 +424,10 @@ if(imethod=="dropout"){
         status=c("converged"),
         wallclock=as.numeric(c(totaltime)))
     write.csv(rbind(logdf0,logdf),file.path(savepath,paste0(imethod,"_logdf.csv")))
+
+    write.csv(impresult,file.path(savepath,"impresult.csv"))
+    write.csv(pDataC,file.path(savepath,"pDataC.csv"))
+    write.csv(trueC,file.path(savepath,"trueC.csv"))
     run_cluster_plots(imputedC=impresult,pdataC=pDataC,trueC=trueC,savepath=file.path(savepath,"cluster_plots"))
 }else if(imethod=="G2S3"){
     savepath = file.path(datapath,paste0("imputemodel_",imethod,",simrep_",simrep))

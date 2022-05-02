@@ -7,12 +7,12 @@ nsleepsim=5 # amount of time to sleep after generating sc simulation (prevent ps
 nsleepfit=1 # amount of time to sleep in between steps that seem to miss key environment vars
 nsleeploop=1 # how long to sleep between loop iterations
 export nsleepdatapath=1 # how long to sleep after creating pb data path
-suffix=OuterStats_clValidStabGprob
+suffix=SimPBStd
 
 export EMDIAG=FALSE
 export NPBULK=4 # the max number of pseudobulk samples within a sim
-# export NSIM=50
-export NSIM=2
+export NSIM=50
+# export NSIM=2
 export batchFacLoc=0.1
 export batchFacScale=0.2
 export deFacLoc=0.5
@@ -20,17 +20,16 @@ export deFacScale=0.5
 export gProbs=0.1-0.1-0.5-0.3
 export deProbs=0.3-0.3-0.3-0.3 # was 0.045
 export PBTRAINRATE=0.5
-# export SLURMPARTITION=standard
-export SLURMPARTITION=free
+export SLURMPARTITION=standard
 export SLURMACCT=qnie_lab
-export TMPDIR=/dfs5/bio/mkarikom/sbatch_temp
 export NCPUS=5
 export NCPUSLOW=2
-export MEMPERCPU=6000
+export MEMPERCPU=10000
 export NODETMP=2000 # amount of /tmp space available, if this fills up then R might crash
 # export slurmtimelimit=0-02:30:00
-export slurmtimelimit=0-00:30:00
-export PROJECTDIR=/dfs6/pub/mkarikom/code/DURIAN_paper_clean
+export slurmtimelimit=1-00:00:00
+export PROJECTDIR=/share/crsp/lab/cellfate/mkarikom/DURIAN_paper_clean
+cd $PROJECTDIR
 export BASEDIR=$PROJECTDIR/slurm
 
 export RUNMASTER=$BASEDIR/durian_pseudobulk/output/pseudobulk_$suffix,gProb_$gProbs,deProb_$deProbs,bLoc_$batchFacLoc,bScale_$batchFacScale,dLoc_$deFacLoc,dScale_$deFacScale
@@ -111,15 +110,10 @@ export ERR_OUT_THRESH=1e-7 # 1e-7
 export RUNOUTERSTATS=FALSE
 export RUNSTABILITY=FALSE
 
-SCPARAMS=( "1,1e-6,1e-4" "1e-2,1e-5,1e-5" )
-DPARAMS=( "1,1e-6,1e-4" "1e-2,1e-5,1e-5" )
+export SUBSAMPLECPM=FALSE
 
-######################################################################################
-# DELETE
-######################################################################################
-DROPOUTMIDS=( "0:0:0:0:6.5:6.5:6.5:6.5" )
-SCPARAMS=( "1,1e-6,1e-4" )
-DPARAMS=( "1,1e-6,1e-4" )
+SCPARAMS=( "1,1e-6,1e-4" "1e-2,1e-5,1e-5" "1,1e-7,1e-4" "1,1e-5,1e-4" )
+DPARAMS=( "1,1e-6,1e-4" "1e-2,1e-5,1e-5" "1,1e-7,1e-4" "1,1e-5,1e-4" )
 
 declare -a ALLDEPENDS=''
 
@@ -152,6 +146,7 @@ for dropMids in "${DROPOUTMIDS[@]}"; do
         echo start splatter gen $PBULKDIR
         sbatchid=$(sbatch \
         --account=$SLURMACCT \
+        --wait \
         --tmp=$NODETMP \
         --array=1-$NSIM \
         --partition=$SLURMPARTITION \
@@ -170,7 +165,7 @@ for dropMids in "${DROPOUTMIDS[@]}"; do
         # fit non-ursm imputation methods
         ######################################################################################
 
-        IMPUTE_METHODS=( DrImpute dropout ALRA G2S3 CMFImpute )
+        IMPUTE_METHODS=( DrImpute dropout G2S3 CMFImpute )
         SBATCHSUB=$BASEDIR/application_scripts/pseudo_array_task.sub
         export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods.R
         export nCoresAvail=$NCPUS # this is the number of workers we want
@@ -229,6 +224,7 @@ for dropMids in "${DROPOUTMIDS[@]}"; do
                         # collect the job ids `sbatchid` in an array
                         sbatchid=$(sbatch \
                         --account=$SLURMACCT \
+                        --wait \
                         --tmp=$NODETMP \
                         --array=1-$NSIM \
                         --partition=$SLURMPARTITION \
@@ -326,6 +322,7 @@ for dropMids in "${DROPOUTMIDS[@]}"; do
                 echo running durian dslda after $PSEUDODEPENDS
                 sbatchid=$(sbatch \
                 --account=$SLURMACCT \
+                --wait \
                 --tmp=$NODETMP \
                 --array=1-$NSIM \
                 --partition=$SLURMPARTITION \
@@ -339,7 +336,6 @@ for dropMids in "${DROPOUTMIDS[@]}"; do
                 $SBATCHSUB | cut -f 4 -d' ')
                 NONURSMDEPENDS+=":${sbatchid}"
         done
-
 
         ######################################################################################
         # pre-generate all the ursm tmp files
@@ -448,7 +444,7 @@ for dropMids in "${DROPOUTMIDS[@]}"; do
         sbatchid=$(sbatch \
         --account=$SLURMACCT \
         --tmp=$NODETMP \
-        --partition=$SLURMPARTITION \
+        --partition=highmem \
         --cpus-per-task=$NCPUSLOW \
         --time=$slurmtimelimit \
         --mem-per-cpu=$MEMPERCPU \
@@ -474,8 +470,9 @@ for dropMids in "${DROPOUTMIDS[@]}"; do
 
         sbatchid=$(sbatch \
         --account=$SLURMACCT \
+        --wait \
         --tmp=$NODETMP \
-        --partition=$SLURMPARTITION \
+        --partition=highmem \
         --cpus-per-task=$NCPUSLOW \
         --time=$slurmtimelimit \
         --mem-per-cpu=$MEMPERCPU \
@@ -502,7 +499,7 @@ mkdir -p $SBATCHOUTDIR
 sbatchid=$(sbatch \
 --account=$SLURMACCT \
 --tmp=$NODETMP \
---partition=$SLURMPARTITION \
+--partition=highmem \
 --cpus-per-task=$NCPUSLOW \
 --time=$slurmtimelimit \
 --mem-per-cpu=$MEMPERCPU \
@@ -528,7 +525,7 @@ mkdir -p $SBATCHOUTDIR
 sbatchid=$(sbatch \
 --account=$SLURMACCT \
 --tmp=$NODETMP \
---partition=$SLURMPARTITION \
+--partition=highmem \
 --cpus-per-task=$NCPUSLOW \
 --time=$slurmtimelimit \
 --mem-per-cpu=$MEMPERCPU \
@@ -554,7 +551,7 @@ mkdir -p $SBATCHOUTDIR
 sbatchid=$(sbatch \
 --account=$SLURMACCT \
 --tmp=$NODETMP \
---partition=$SLURMPARTITION \
+--partition=highmem \
 --cpus-per-task=$NCPUSLOW \
 --time=$slurmtimelimit \
 --mem-per-cpu=$MEMPERCPU \

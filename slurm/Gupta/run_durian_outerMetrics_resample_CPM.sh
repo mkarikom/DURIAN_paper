@@ -8,22 +8,23 @@ nsleepsim=30 # amount of time to sleep after generating sc simulation (prevent p
 nsleepfit=5 # amount of time to sleep in between steps that seem to miss key environment vars
 nsleeploop=5 # how long to sleep between loop iterations
 dsname=Gupta
-suffix=OuterMetricsResampleShort
+suffix=Resample
 prefix=$dsname
 SLURMACCT=qnie_lab
 
 export EMDIAG=FALSE
-export SLURMPARTITION=free
+export SLURMPARTITION=highmem
 # export slurmtimelimit=3-00:00:00
-export slurmtimelimit=0-03:00:00
-export PROJECTDIR=/dfs6/pub/mkarikom/code/DURIAN_paper_clean
+export slurmtimelimit=1-00:00:00
+export PROJECTDIR=/share/crsp/lab/cellfate/mkarikom/DURIAN_paper_clean
+cd $PROJECTDIR
 export BASEDIR=$PROJECTDIR/slurm
 export OUTPUTMASTER=$BASEDIR/${dsname}/output.clusterMetrics.$SLURMPARTITION.$suffix
 export NBULK=10
-MEMP=10000M # memory in mb, try increasing if nodes are not avail
+MEMP=16000M # memory in mb, try increasing if nodes are not avail
 export NCPUS=$((NBULK+1))
-# export MAXREP=20
-export MAXREP=50
+# export MAXREP=2
+export MAXREP=20
 export SUBTARGETSIZE=500 # 500
 export SUBMINCELLS=10 # 10
 export SUBGENERATE=0.01 # 0.01
@@ -88,8 +89,12 @@ DPARAMS=( "1,1e-6,1e-4" )
 
 export durianEps=1e-3
 
+export SUBSAMPLECPM=FALSE
+
 TypeList=( "" )
-PREFIXTUPLES=( "GuptaE13SC.VST;BiggsBulk.VST")
+PREFIXTUPLES=( \
+"GuptaE13SC.VST;BiggsBulk.VST" \
+)
 
 nsleepsim=60 # amount of time to sleep after generating sc simulation (prevent pseudo from erroring upon creation)
 nsleepfit=2 # amount of time to sleep in between steps that seem to miss key environment vars
@@ -129,7 +134,7 @@ for SIMREP in $(seq 1 $MAXREP); do
                         ######################################################################################
 
                         SBATCHSUB=$BASEDIR/application_scripts/run_durian.sub
-                        IMPUTE_METHODS=( DrImpute dropout ALRA G2S3 CMFImpute )
+                        IMPUTE_METHODS=( DrImpute dropout G2S3 CMFImpute )
                         export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods_subsample.R
 
                         for IMPUTE_METHOD in "${IMPUTE_METHODS[@]}"; do
@@ -143,6 +148,7 @@ for SIMREP in $(seq 1 $MAXREP); do
                                 # collect the job ids `sbatchid` in an array
                                 sbatchid=$(sbatch \
                                 --account=$SLURMACCT \
+                                --wait \
                                 --partition=$SLURMPARTITION \
                                 --cpus-per-task=$NCPUS \
                                 --time=$slurmtimelimit \

@@ -1,5 +1,5 @@
 #!/bin/bash
-# for gupta
+# for park
 
 ######################################################################################
 # set project environment for R and julia
@@ -7,20 +7,24 @@
 nsleepsim=30 # amount of time to sleep after generating sc simulation (prevent pseudo from erroring upon creation)
 nsleepfit=5 # amount of time to sleep in between steps that seem to miss key environment vars
 nsleeploop=5 # how long to sleep between loop iterations
-dsname=Gupta
-suffix=OuterMetrics1K05
+dsname=Park
+suffix=CPM
 prefix=$dsname
 SLURMACCT=qnie_lab
 
 export EMDIAG=FALSE
-export SLURMPARTITION=free
-export slurmtimelimit=3-00:00:00
-export PROJECTDIR=/dfs6/pub/mkarikom/code/DURIAN_paper_clean
+# export SLURMPARTITION=highmem
+export SLURMPARTITION=highmem
+# export slurmtimelimit=3-00:00:00
+export slurmtimelimit=1-00:00:00
+export PROJECTDIR=/share/crsp/lab/cellfate/mkarikom/DURIAN_paper_clean
+cd $PROJECTDIR
 export BASEDIR=$PROJECTDIR/slurm
 export OUTPUTMASTER=$BASEDIR/${dsname}/output.clusterMetrics.$SLURMPARTITION.$suffix
-export NCPUS=14
-
+export NBULK=3
 MEMP=16000M # memory in mb, try increasing if nodes are not avail
+export NCPUS=$((NBULK+1))
+
 export SOURCEPATH=$BASEDIR/${dsname}/durian_data
 
 export JULIA_PROJECT=${PROJECTDIR} # make sure all workers can access the project enviroment
@@ -41,10 +45,12 @@ module load mkl
 module load julia/1.6.0
 module load R/4.0.4
 module load python/2.7.17 # needed for ursm, pypolyagamma
+module load MATLAB/R2020b
 
 export ETCLIB=$BASEDIR/scrabble_helper_functions/library_other_methods.R
-export SIGNALINGLIB=$BASEDIR/scrabble_helper_functions/library_signaling.R
-export MULTISETLIB=$BASEDIR/scrabble_helper_functions/library_signaling_multiset.R
+export ALRALIB=$PROJECTDIR/ALRA/alra.R
+export G2S3LIB=$PROJECTDIR/G2S3/run_G2S3.m
+export CMFLIB=$PROJECTDIR/CMFImpute/analysis.m
 
 # save all the enviroment stuff to the project dir
 pip freeze > $PROJECTDIR/requirements.req
@@ -79,8 +85,15 @@ DPARAMS=( "1,1e-6,1e-4" "1e-2,1e-5,1e-5" )
 
 export durianEps=1e-3
 
+export SUBSAMPLECPM=TRUE
+export CELLSAMPLESIZE=1000
+export SUBGENERATE=0.10
+
 TypeList=( "" )
-PREFIXTUPLES=( "GuptaE13SC.VST1K05;BiggsBulk.VST" ) # scdata is 2971 x 12905
+PREFIXTUPLES=( \
+"BaronSC.DM.isletVST1K05;SegerstolpeBulk.DM.cpm" \
+"BaronSC.H.isletVST1K05;SegerstolpeBulk.H.cpm" \
+)
 
 nsleepsim=60 # amount of time to sleep after generating sc simulation (prevent pseudo from erroring upon creation)
 nsleepfit=2 # amount of time to sleep in between steps that seem to miss key environment vars
@@ -92,7 +105,7 @@ export nsleepdatapath=1 # how long to sleep after creating pb data path
 ######################################################################################
 # ursm params
 ######################################################################################
-export number_of_cell_types=11 # for gupta is 11, for baron is 14, for he is 8
+export number_of_cell_types=4 # for gupta is 11, for baron is 14
 export burn_in_length=10
 export gibbs_sample_number=10
 
@@ -117,7 +130,8 @@ for SUBSETCELLTYPES in "${TypeList[@]}"; do
                 ######################################################################################
 
                 SBATCHSUB=$BASEDIR/application_scripts/run_durian.sub
-                IMPUTE_METHODS=( DrImpute dropout )
+                IMPUTE_METHODS=( DrImpute dropout G2S3 CMFImpute )
+
                 export JOBSCRIPT=$BASEDIR/application_scripts/run_imputation_methods.R
 
                 for IMPUTE_METHOD in "${IMPUTE_METHODS[@]}"; do

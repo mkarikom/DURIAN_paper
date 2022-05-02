@@ -11,7 +11,13 @@ gsp_start;addpath(".");
 M = readtable(datapath,'Delimiter',',','ReadRowNames',true,'ReadVariableNames',true);% M is raw data in table form, rows are genes and columns are cells.
 M0 = table2array(M); % data matrix
 
-[X,network] = G2S3(M0);
+rowsums = sum(M0,2)
+nzind = find(rowsums>0)
+
+[X0,network] = G2S3(M0(nzind,:));
+
+X = M0;
+X(nzind,:) = X0;
 
 writetable(cell2table(M.Properties.VariableNames','VariableNames',{'cellID'}),strcat(savepath,'/cellids.csv'));
 writematrix(X,strcat(savepath,'/imputed.csv'));
