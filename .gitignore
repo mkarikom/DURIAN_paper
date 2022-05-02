@@ -62,3 +62,4 @@ salmon_output_sbatch/
 raw_data/
 *.tex
 Manifest.toml
+archive/
