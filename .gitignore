@@ -44,6 +44,8 @@ workspace.code-workspace
 *.log
 *.gz
 *.gzip
+*.tar
+*.rds
 *.zip
 *.tsv
 *.pdf
